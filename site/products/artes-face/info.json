@@ -3,5 +3,6 @@
   "excerpt": "This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.",
   "content": "By replaying the work for each exhibition and pushing the evocative power of the work a little further, Artes Face focuses on the idea of ‘public space’ and more specifically on spaces where anyone can do anything at any given moment: the non-private space, the non-privately owned space, space that is economically interesting.",
   "price": 280,
-  "stripePaymentLinkUrl": "https://buy.stripe.com/test_28EaEY1f6202f4i3ncbII0h"
+  "stripePaymentLinkUrl": "",
+  "stripeDescription": "AI Artwork"
 }

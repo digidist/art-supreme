@@ -3,5 +3,6 @@
   "excerpt": "This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.",
   "content": "Head Asylum is on the one hand touchingly beautiful, on the other hand painfully attractive. Again and again, the work leaves us orphaned with a mix of conflicting feelings and thoughts.",
   "price": 370,
-  "stripePaymentLinkUrl": "https://buy.stripe.com/test_8x2fZie1S9sucWa4rgbII0q"
+  "stripePaymentLinkUrl": "",
+  "stripeDescription": "AI Artwork"
 }

@@ -7,8 +7,9 @@
  *
  * Run locally:
  *   STRIPE_SECRET_KEY=sk_... node scripts/stripe-create-links.mjs
- *   STRIPE_SUCCESS_URL=...  (optional) STRIPE_CURRENCY=eur (optional, default eur)
- * Per-product: in info.json set "currency": "usd" (or eur, gbp, etc.) to override.
+ *   STRIPE_SUCCESS_URL=...  (optional) STRIPE_CURRENCY=eur (optional)
+ *   STRIPE_DEFAULT_DESCRIPTION=...  (optional, default "AI artwork") – text on Stripe invoice.
+ * Per-product in info.json: "currency", "stripeDescription" (invoice text, e.g. "AI Artwork").
  *
  * Options:
  *   --force   Recreate links even if stripePaymentLinkUrl is already set.
@@ -18,28 +19,33 @@
  * deploy workflow run this script before scripts/build.mjs so the built site gets fresh links.
  */
 
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 const ROOT = process.cwd();
-const SITE_PRODUCTS_DIR = path.join(ROOT, 'site', 'products');
+const SITE_PRODUCTS_DIR = path.join(ROOT, "site", "products");
 
 const args = process.argv.slice(2);
-const force = args.includes('--force');
-const dryRun = args.includes('--dry-run');
+const force = args.includes("--force");
+const dryRun = args.includes("--dry-run");
 
 function getProducts() {
   if (!fs.existsSync(SITE_PRODUCTS_DIR)) return [];
-  const dirs = fs.readdirSync(SITE_PRODUCTS_DIR, { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => d.name);
+  const dirs = fs
+    .readdirSync(SITE_PRODUCTS_DIR, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
   const products = [];
   for (const slug of dirs) {
-    const infoPath = path.join(SITE_PRODUCTS_DIR, slug, 'info.json');
+    const infoPath = path.join(SITE_PRODUCTS_DIR, slug, "info.json");
     if (!fs.existsSync(infoPath)) continue;
-    let meta = { title: slug.replace(/-/g, ' '), price: 0, stripePaymentLinkUrl: '' };
+    let meta = {
+      title: slug.replace(/-/g, " "),
+      price: 0,
+      stripePaymentLinkUrl: "",
+    };
     try {
-      meta = { ...meta, ...JSON.parse(fs.readFileSync(infoPath, 'utf8')) };
+      meta = { ...meta, ...JSON.parse(fs.readFileSync(infoPath, "utf8")) };
     } catch (_) {}
     products.push({ slug, ...meta });
   }
@@ -48,8 +54,12 @@ function getProducts() {
 
 function getCurrency(product) {
   // Per-product info.json can set "currency" (e.g. "eur", "usd"); else env STRIPE_CURRENCY; else eur
-  const c = (product.currency || process.env.STRIPE_CURRENCY || 'eur').toLowerCase();
-  return c.length === 3 ? c : 'eur';
+  const c = (
+    product.currency ||
+    process.env.STRIPE_CURRENCY ||
+    "eur"
+  ).toLowerCase();
+  return c.length === 3 ? c : "eur";
 }
 
 async function createPaymentLink(secretKey, product) {
@@ -58,21 +68,37 @@ async function createPaymentLink(secretKey, product) {
 
   const currency = getCurrency(product);
 
-  // Stripe API expects form-encoded body
-  const params = new URLSearchParams();
-  params.set('line_items[0][price_data][currency]', currency);
-  params.set('line_items[0][price_data][unit_amount]', String(priceCents));
-  params.set('line_items[0][price_data][product_data][name]', product.title || product.slug);
-  params.set('line_items[0][quantity]', '1');
-  const successBase = process.env.STRIPE_SUCCESS_URL || 'https://YOUR_USERNAME.github.io/Art-Supreme-Github/';
-  params.set('after_completion[type]', 'redirect');
-  params.set('after_completion[redirect][url]', successBase.replace(/\/?$/, '/'));
+  // Name on invoice: title from info.json (e.g. "Colmar")
+  const productName = product.title || product.slug;
+  // Description on invoice: optional stripeDescription in info.json, else env, else generic "AI artwork"
+  const productDesc =
+    product.stripeDescription ||
+    process.env.STRIPE_DEFAULT_DESCRIPTION ||
+    "AI artwork";
 
-  const res = await fetch('https://api.stripe.com/v1/payment_links', {
-    method: 'POST',
+  const params = new URLSearchParams();
+  params.set("line_items[0][price_data][currency]", currency);
+  params.set("line_items[0][price_data][unit_amount]", String(priceCents));
+  params.set("line_items[0][price_data][product_data][name]", productName);
+  params.set(
+    "line_items[0][price_data][product_data][description]",
+    productDesc,
+  );
+  params.set("line_items[0][quantity]", "1");
+  const successBase =
+    process.env.STRIPE_SUCCESS_URL ||
+    "https://YOUR_USERNAME.github.io/Art-Supreme-Github/success.html";
+  params.set("after_completion[type]", "redirect");
+  params.set(
+    "after_completion[redirect][url]",
+    successBase.replace(/\/?$/, "/"),
+  );
+
+  const res = await fetch("https://api.stripe.com/v1/payment_links", {
+    method: "POST",
     headers: {
       Authorization: `Bearer ${secretKey}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     body: params.toString(),
   });
@@ -88,30 +114,38 @@ async function createPaymentLink(secretKey, product) {
 async function main() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey && !dryRun) {
-    console.log('STRIPE_SECRET_KEY not set; skipping Stripe link creation.');
+    console.log("STRIPE_SECRET_KEY not set; skipping Stripe link creation.");
     return;
   }
   if (!secretKey && dryRun) return;
 
-  const products = getProducts().filter(p => p.price > 0);
+  const products = getProducts().filter((p) => p.price > 0);
   if (products.length === 0) {
-    console.log('No products with price > 0 found in site/products/*/info.json');
+    console.log(
+      "No products with price > 0 found in site/products/*/info.json",
+    );
     return;
   }
 
-  console.log(`Found ${products.length} product(s) with price. Force=${force} DryRun=${dryRun}\n`);
+  console.log(
+    `Found ${products.length} product(s) with price. Force=${force} DryRun=${dryRun}\n`,
+  );
 
   for (const product of products) {
-    const infoPath = path.join(SITE_PRODUCTS_DIR, product.slug, 'info.json');
+    const infoPath = path.join(SITE_PRODUCTS_DIR, product.slug, "info.json");
     const hasLink = !!product.stripePaymentLinkUrl;
 
     if (hasLink && !force) {
-      console.log(`Skip ${product.slug} (already has link). Use --force to recreate.`);
+      console.log(
+        `Skip ${product.slug} (already has link). Use --force to recreate.`,
+      );
       continue;
     }
 
     if (dryRun) {
-      console.log(`[dry-run] Would create Payment Link for "${product.title}" (€${product.price}) -> ${infoPath}`);
+      console.log(
+        `[dry-run] Would create Payment Link for "${product.title}" (€${product.price}) -> ${infoPath}`,
+      );
       continue;
     }
 
@@ -123,10 +157,14 @@ async function main() {
       }
       const existing = {};
       try {
-        Object.assign(existing, JSON.parse(fs.readFileSync(infoPath, 'utf8')));
+        Object.assign(existing, JSON.parse(fs.readFileSync(infoPath, "utf8")));
       } catch (_) {}
       existing.stripePaymentLinkUrl = url;
-      fs.writeFileSync(infoPath, JSON.stringify(existing, null, 2) + '\n', 'utf8');
+      fs.writeFileSync(
+        infoPath,
+        JSON.stringify(existing, null, 2) + "\n",
+        "utf8",
+      );
       console.log(`OK ${product.slug} -> ${url}`);
     } catch (e) {
       console.error(`${product.slug}: ${e.message}`);

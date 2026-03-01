@@ -3,5 +3,6 @@
   "excerpt": "This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.",
   "content": "Brain Affairs demonstrates how life extends beyond its own subjective limits and often tells a story about the effects of global cultural interaction. It challenges the binaries we continually reconstruct between Self and Other, between our own ‘cannibal’ and ‘civilized’ selves.",
   "price": 310,
-  "stripePaymentLinkUrl": "https://buy.stripe.com/test_eVq8wQ7Du48a8FUe1QbII0j"
+  "stripePaymentLinkUrl": "",
+  "stripeDescription": "AI Artwork"
 }

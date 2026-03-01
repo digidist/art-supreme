@@ -45,8 +45,9 @@ jobs:
       - name: Create Stripe links for new products
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_SUCCESS_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          STRIPE_SUCCESS_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/success.html
           STRIPE_CURRENCY: ${{ secrets.STRIPE_CURRENCY }}
+          STRIPE_DEFAULT_DESCRIPTION: ${{ secrets.STRIPE_DEFAULT_DESCRIPTION }}
         run: node scripts/stripe-create-links.mjs
 
       # If push fails (e.g. branch protection), this step fails and the whole pipeline stops.

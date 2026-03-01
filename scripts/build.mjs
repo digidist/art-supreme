@@ -155,6 +155,16 @@ function build() {
   </article>`;
   fs.writeFileSync(path.join(SITE_DIR, 'contact.html'), layout('Contact', contactBody, 'contact', ''), 'utf8');
 
+  const successBody = `
+  <article class="page page-success">
+    <div class="success-icon" aria-hidden="true">✓</div>
+    <h1>Thank you for your purchase</h1>
+    <p class="success-lead">Your order has been confirmed. We'll get in touch regarding shipping and delivery.</p>
+    <p>Questions? <a href="contact.html">Contact us</a>.</p>
+    <a href="index.html" class="btn">Back to gallery</a>
+  </article>`;
+  fs.writeFileSync(path.join(SITE_DIR, 'success.html'), layout('Order confirmed', successBody, '', ''), 'utf8');
+
   // CSS
   const css = `/* Art Supreme – minimal layout */
 * { box-sizing: border-box; }
@@ -187,6 +197,11 @@ body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.5; color: #
 .back { display: inline-block; margin-bottom: 1rem; color: #666; text-decoration: none; }
 .back:hover { color: #111; }
 .page h1 { margin-top: 0; }
+.page-success { text-align: center; padding: 3rem 2rem; }
+.page-success .success-icon { width: 4rem; height: 4rem; margin: 0 auto 1.5rem; background: #1a7f37; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; line-height: 1; }
+.page-success h1 { font-size: 1.75rem; margin-bottom: 0.75rem; }
+.page-success .success-lead { font-size: 1.1rem; color: #444; margin-bottom: 1.5rem; }
+.page-success .btn { margin-top: 1rem; }
 `;
 
   fs.writeFileSync(path.join(SITE_DIR, 'css', 'style.css'), css, 'utf8');

@@ -3,5 +3,6 @@
   "excerpt": "This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.",
   "content": "These art painting have been hand created a generative adversarial network algorithm trained on Vulcano photos. By applying abstraction, Vulcanic Snap seduces the viewer into a world of ongoing equilibrium and the interval that articulates the stream of daily events.",
   "price": 410,
-  "stripePaymentLinkUrl": "https://buy.stripe.com/test_8x2eVecXOgUWg8m6zobII0A"
+  "stripePaymentLinkUrl": "",
+  "stripeDescription": "AI Artwork"
 }

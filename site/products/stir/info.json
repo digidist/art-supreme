@@ -3,5 +3,6 @@
   "excerpt": "",
   "content": "",
   "price": 220,
-  "stripePaymentLinkUrl": "https://buy.stripe.com/test_00w6oI4ri8oq9JYe1QbII0w"
+  "stripePaymentLinkUrl": "",
+  "stripeDescription": "AI Artwork"
 }
