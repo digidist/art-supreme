@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><feed
+	xmlns="http://www.w3.org/2005/Atom"
+	xmlns:thr="http://purl.org/syndication/thread/1.0"
+	xml:lang="en-US"
+	xml:base="https://art-supreme.com/wp-atom.php"
+	>
+	<title type="text">ART SUPREME</title>
+	<subtitle type="text">Buy AI Generated Artwork</subtitle>
+
+	<updated>2019-07-08T16:04:51Z</updated>
+
+	<link rel="alternate" type="text/html" href="https://art-supreme.com" />
+	<id>https://art-supreme.com/feed/atom/</id>
+	<link rel="self" type="application/atom+xml" href="https://art-supreme.com/feed/atom/" />
+
+	<generator uri="https://wordpress.org/" version="5.8.10">WordPress</generator>
+	<entry>
+		<author>
+			<name>Art Supreme</name>
+					</author>
+
+		<title type="html"><![CDATA[Convert your photos to artworks with Art Supreme]]></title>
+		<link rel="alternate" type="text/html" href="https://art-supreme.com/photo2artwork/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=photo2artwork" />
+
+		<id>http://artday-wp.wossthemes.com/?p=7</id>
+		<updated>2019-07-08T16:04:51Z</updated>
+		<published>2019-07-07T08:24:39Z</published>
+		<category scheme="https://art-supreme.com" term="Art" />
+		<summary type="html"><![CDATA[  Art Supreme is proud to present you our newest service where we convert your favorite photos into stunning works of art. We use style transform algorithms which are based on artificial intelligence. After you send us a photo,  we will contact you and propose multiple ways how the painting can look like. We use [&#8230;]]]></summary>
+
+					<content type="html" xml:base="https://art-supreme.com/photo2artwork/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=photo2artwork"><![CDATA[<p> </p>
+<p><strong>Art Supreme</strong> is proud to present you our newest service where <strong>we convert your favorite photos into stunning works of art.</strong> We use style transform algorithms which are based on artificial intelligence. After you send us a photo,  we will contact you and propose multiple ways how the painting can look like. We use algorithms which identify the style that best fits to your photo and once the algorithm has identified the best artistic style, it will transform that photo into a painting which we will print on a high quality fine canvas and then ship it to you.</p>
+<p> </p>
+<p><span style="color: #000000;"><strong>How are they made?</strong></span></p>
+<hr />
+<p>The process begins by sending us an email to info@art-supreme.com with your photograph that you wish to convert to a professional art piece.  After contacting us, our artists employees will personally contact you, making it possible to offer an incredible variety of styles which you can choose from.</p>
+<p>From there, after you selected the final design,  we will ship you the artwork together with an original certificate of authenticity which proves the origin of the artwork and describes it uniqueness.</p>
+<p>These paintings are an ideal gift for birthdays, anniversaries, weddings, memorials &amp; family gatherings.  We promise shipping within 3-5 business days and payment is required only after you have confirmed the final design and before the shipping.</p>
+<p>We are looking forward to working with you again and can assure you that we will follow up with you directly and try to provide you a high quality product.</p>
+<div data-v-587c0534=""> </div>
+<div data-v-587c0534="">Example:</div>
+
+<img width="640" height="427" src="https://art-supreme.com/wp-content/uploads/2015/12/cap-2923682_1920-1024x683.jpg" class="attachment-large size-large" alt="original photo" loading="lazy" columns="2" link="none" size="large" ids="919,920" orderby="post__in" include="919,920" srcset="https://art-supreme.com/wp-content/uploads/2015/12/cap-2923682_1920-1024x683.jpg 1024w, https://art-supreme.com/wp-content/uploads/2015/12/cap-2923682_1920-300x200.jpg 300w, https://art-supreme.com/wp-content/uploads/2015/12/cap-2923682_1920-768x512.jpg 768w, https://art-supreme.com/wp-content/uploads/2015/12/cap-2923682_1920-600x400.jpg 600w, https://art-supreme.com/wp-content/uploads/2015/12/cap-2923682_1920.jpg 1920w" sizes="(max-width: 640px) 100vw, 640px" />
+<img width="640" height="427" src="https://art-supreme.com/wp-content/uploads/2015/12/boy_high_Res-1024x683.jpg" class="attachment-large size-large" alt="" loading="lazy" columns="2" link="none" size="large" ids="919,920" orderby="post__in" include="919,920" srcset="https://art-supreme.com/wp-content/uploads/2015/12/boy_high_Res-1024x683.jpg 1024w, https://art-supreme.com/wp-content/uploads/2015/12/boy_high_Res-300x200.jpg 300w, https://art-supreme.com/wp-content/uploads/2015/12/boy_high_Res-768x512.jpg 768w, https://art-supreme.com/wp-content/uploads/2015/12/boy_high_Res-600x400.jpg 600w" sizes="(max-width: 640px) 100vw, 640px" />
+
+<h4><span style="color: #000000;"><strong>Pricing</strong></span></h4>
+<p><strong>60&#215;40 cm canvas &#8211; 180 €  </strong></p>
+<p>for USA customers<em> <strong> ( 23&#8221;x 6&#8221; canvas &#8211; $202 )</strong></em></p>
+<p>Other dimensions also available after consulting.</p>
+
+
+<div class="wp-block-jetpack-email">For any questions please feel free to contact us at  <a href="mailto:info@art-supreme.com">info@art-supreme.com</a>
+</div>
+]]></content>
+		
+			</entry>
+	</feed>

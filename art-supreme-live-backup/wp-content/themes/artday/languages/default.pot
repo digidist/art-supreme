@@ -1,0 +1,464 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: artday\n"
+"POT-Creation-Date: 2016-01-07 01:16+0200\n"
+"PO-Revision-Date: 2016-01-07 01:16+0200\n"
+"Last-Translator: \n"
+"Language-Team: Wossthemes <support@wossthemes.com>\n"
+"Language: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.11\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-KeywordsList: esc_html_e;esc_attr_e;_e;esc_html__;esc_html_x\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-1: ..\n"
+
+#: ../404.php:20
+msgid "Oops! That page can&rsquo;t be found."
+msgstr ""
+
+#: ../404.php:24
+msgid ""
+"Ok something obviously went wrong here. Try using the navigation at the top "
+"to find something better than this page or check out our most popular items "
+"below."
+msgstr ""
+
+#: ../404.php:29
+msgid "Featured products"
+msgstr ""
+
+#: ../comments.php:20
+msgid "Comments"
+msgstr ""
+
+#: ../comments.php:45
+msgid "Comments are closed."
+msgstr ""
+
+#: ../footer.php:142
+msgid "Handcrafted with love &copy; 2015 All rights reserved."
+msgstr ""
+
+#: ../functions.php:48
+msgid "Primary"
+msgstr ""
+
+#: ../functions.php:49
+msgid "Left section"
+msgstr ""
+
+#: ../functions.php:50
+msgid "Right section"
+msgstr ""
+
+#: ../functions.php:105
+msgid "Blog Sidebar"
+msgstr ""
+
+#: ../functions.php:114
+msgid "Shop Sidebar"
+msgstr ""
+
+#: ../functions.php:123
+msgid "Bottom of the page"
+msgstr ""
+
+#: ../functions.php:292
+msgid "Your comment is awaiting moderation."
+msgstr ""
+
+#: ../header.php:47 ../page-227.php:36 ../page-229.php:36 ../page-231.php:36
+msgid "Skip to content"
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:521
+msgid "Update Required"
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:635
+msgid "Set the parent_slug config variable instead."
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:828
+#: ../inc/class-tgm-plugin-activation.php:3438
+msgid "Return to the Dashboard"
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:935
+msgid ""
+"The remote plugin package does not contain a folder with the desired slug "
+"and renaming did not work."
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:935
+#: ../inc/class-tgm-plugin-activation.php:938
+msgid ""
+"Please contact the plugin provider and ask them to package their plugin "
+"according to the WordPress guidelines."
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:938
+msgid ""
+"The remote plugin package consists of more than one file, but the files are "
+"not packaged in a folder."
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:1116
+#: ../inc/class-tgm-plugin-activation.php:2828
+msgid "and"
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:2570
+msgid "Upgrade message from the plugin author:"
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:2788
+msgid "No plugins were selected to be activated. No action taken."
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:2814
+msgid "No plugins are available to be activated at this time."
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:3370
+#: ../inc/class-tgm-plugin-activation.php:3376
+msgid "Show Details"
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:3370
+#: ../inc/class-tgm-plugin-activation.php:3376
+msgid "Hide Details"
+msgstr ""
+
+#: ../inc/class-tgm-plugin-activation.php:3376
+#, php-format
+msgid "%1$s installed successfully."
+msgstr ""
+
+#: ../inc/template-tags.php:28
+#, php-format
+msgid "Posted on %s"
+msgstr ""
+
+#: ../inc/template-tags.php:33
+#, php-format
+msgid "by %s"
+msgstr ""
+
+#. translators: used between list items, there is a space after the comma
+#: ../inc/template-tags.php:50 ../inc/template-tags.php:57
+msgid ", "
+msgstr ""
+
+#: ../inc/template-tags.php:52
+#, php-format
+msgid "%1$s"
+msgstr ""
+
+#: ../inc/template-tags.php:59
+#, php-format
+msgid "Tagged: %1$s"
+msgstr ""
+
+#. translators: %s: Name of current post
+#: ../inc/template-tags.php:73 ../template-parts/content-page.php:32
+#, php-format
+msgid "Edit %s"
+msgstr ""
+
+#: ../inc/theme-options/config.php:198 ../inc/theme-options/config.php:202
+msgid "Current theme preview"
+msgstr ""
+
+#: ../menu.php:118 ../page-227.php:165 ../page-229.php:104 ../page-231.php:165
+msgid "Make your menu at Appearance => Menus "
+msgstr ""
+
+#: ../search.php:32
+#, php-format
+msgid "Search Results for: %s"
+msgstr ""
+
+#: ../template-parts/content-image.php:16
+#: ../template-parts/content-page.php:21
+#: ../template-parts/content-single.php:51 ../template-parts/content.php:56
+msgid "Pages:"
+msgstr ""
+
+#: ../template-parts/content-none.php:14
+msgid "Nothing Found"
+msgstr ""
+
+#: ../template-parts/content-none.php:24
+msgid ""
+"Sorry, but nothing matched your search terms. Please try again with some "
+"different keywords."
+msgstr ""
+
+#: ../template-parts/content-none.php:29
+msgid ""
+"It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps "
+"searching can help."
+msgstr ""
+
+#: ../template-parts/content-single.php:27
+msgid "By:"
+msgstr ""
+
+#: ../template-parts/content-single.php:31
+msgid "Category:"
+msgstr ""
+
+#: ../woocommerce/cart/cart-totals.php:20
+msgid "Cart Totals"
+msgstr ""
+
+#: ../woocommerce/cart/cart-totals.php:25 ../woocommerce/config.php:88
+msgid "Subtotal"
+msgstr ""
+
+#: ../woocommerce/cart/cart-totals.php:47
+msgid "Shipping"
+msgstr ""
+
+#: ../woocommerce/cart/cart-totals.php:79 ../woocommerce/cart/cart.php:34
+#: ../woocommerce/order/order-details.php:21
+msgid "Total"
+msgstr ""
+
+#: ../woocommerce/cart/cart.php:31
+msgid "Item"
+msgstr ""
+
+#: ../woocommerce/cart/cart.php:32
+msgid "Price"
+msgstr ""
+
+#: ../woocommerce/cart/cart.php:33
+msgid "Quantity"
+msgstr ""
+
+#: ../woocommerce/cart/cart.php:75
+msgid "Available on backorder"
+msgstr ""
+
+#: ../woocommerce/cart/cart.php:136 ../woocommerce/checkout/form-coupon.php:30
+msgid "Coupon code"
+msgstr ""
+
+#: ../woocommerce/cart/cart.php:139 ../woocommerce/checkout/form-coupon.php:34
+msgid "Apply Coupon"
+msgstr ""
+
+#: ../woocommerce/cart/cart.php:147
+msgid "Update Cart"
+msgstr ""
+
+#: ../woocommerce/cart/shipping-calculator.php:24
+msgid "Calculate Shipping"
+msgstr ""
+
+#: ../woocommerce/cart/shipping-calculator.php:31
+msgid "Select a country&hellip;"
+msgstr ""
+
+#: ../woocommerce/cart/shipping-calculator.php:48
+#: ../woocommerce/cart/shipping-calculator.php:54
+#: ../woocommerce/cart/shipping-calculator.php:66
+msgid "State / county"
+msgstr ""
+
+#: ../woocommerce/cart/shipping-calculator.php:55
+msgid "Select a state&hellip;"
+msgstr ""
+
+#: ../woocommerce/cart/shipping-calculator.php:75
+msgid "City"
+msgstr ""
+
+#: ../woocommerce/cart/shipping-calculator.php:83
+msgid "Postcode / Zip"
+msgstr ""
+
+#: ../woocommerce/cart/shipping-calculator.php:88
+msgid "Update Totals"
+msgstr ""
+
+#: ../woocommerce/checkout/form-billing.php:19
+msgid "Billing &amp; Shipping"
+msgstr ""
+
+#: ../woocommerce/checkout/form-billing.php:23
+msgid "Billing Details"
+msgstr ""
+
+#: ../woocommerce/checkout/form-billing.php:42
+msgid "Create an account?"
+msgstr ""
+
+#: ../woocommerce/checkout/form-billing.php:53
+msgid ""
+"Create an account by entering the information below. If you are a returning "
+"customer please login at the top of the page."
+msgstr ""
+
+#: ../woocommerce/checkout/form-checkout.php:42
+msgid "Your order"
+msgstr ""
+
+#: ../woocommerce/checkout/form-shipping.php:32
+msgid "Ship to a different address?"
+msgstr ""
+
+#: ../woocommerce/checkout/form-shipping.php:58
+msgid "Additional Information"
+msgstr ""
+
+#: ../woocommerce/config.php:19
+msgid "My Account"
+msgstr ""
+
+#: ../woocommerce/config.php:24
+msgid "Cart"
+msgstr ""
+
+#: ../woocommerce/config.php:95
+msgid "View Cart"
+msgstr ""
+
+#: ../woocommerce/config.php:98
+msgid "Checkout"
+msgstr ""
+
+#: ../woocommerce/config.php:105
+msgid "No products in the cart."
+msgstr ""
+
+#: ../woocommerce/config.php:109
+msgid "Visit Shop"
+msgstr ""
+
+#: ../woocommerce/config.php:308
+msgid "Share"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:28
+msgid "Username or email address"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:32
+#: ../woocommerce/myaccount/form-login.php:118
+msgid "Password"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:40
+msgid "STAY SIGNED IN"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:46
+msgid "Forgot your password ?"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:57
+msgid "Login"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:75
+msgid "Click here to sign up for an account."
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:96
+msgid "Create An Account"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:103
+msgid "Username"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:111
+msgid "Email address"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:125
+msgid "Anti-spam"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:135
+msgid "Create Account"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-login.php:141
+msgid "Already have an account? Sign in here."
+msgstr ""
+
+#: ../woocommerce/myaccount/form-lost-password.php:28
+msgid "Username or email"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-lost-password.php:38
+msgid "New password"
+msgstr ""
+
+#: ../woocommerce/myaccount/form-lost-password.php:42
+msgid "Re-enter new password"
+msgstr ""
+
+#: ../woocommerce/myaccount/my-address.php:45
+msgid "Edit"
+msgstr ""
+
+#: ../woocommerce/myaccount/my-address.php:64
+msgid "You have not set up this type of address yet."
+msgstr ""
+
+#: ../woocommerce/myaccount/view-order.php:24
+msgid "Order Updates"
+msgstr ""
+
+#: ../woocommerce/order/order-details-customer.php:14
+msgid "Customer Details"
+msgstr ""
+
+#: ../woocommerce/order/order-details-customer.php:18
+msgid "Note:"
+msgstr ""
+
+#: ../woocommerce/order/order-details-customer.php:25
+msgid "Email:"
+msgstr ""
+
+#: ../woocommerce/order/order-details-customer.php:32
+msgid "Telephone:"
+msgstr ""
+
+#: ../woocommerce/order/order-details-customer.php:49
+msgid "Billing Address"
+msgstr ""
+
+#: ../woocommerce/order/order-details-customer.php:62
+msgid "Shipping Address"
+msgstr ""
+
+#: ../woocommerce/order/order-details.php:16
+msgid "Order Details"
+msgstr ""
+
+#: ../woocommerce/order/order-details.php:20
+msgid "Product"
+msgstr ""
+
+#: ../woocommerce/single-product-reviews.php:47
+msgid "There are no reviews yet."
+msgstr ""
+
+#: ../woocommerce/single-product-reviews.php:99
+msgid ""
+"Only logged in customers who have purchased this product may leave a review."
+msgstr ""
+
+#: ../woocommerce/single-product/related.php:42
+msgid "Related Products"
+msgstr ""

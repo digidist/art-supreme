@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>GAN &#8211; ART SUPREME</title>
+	<atom:link href="https://art-supreme.com/product-tag/generative-adversarial-networks-gan/feed/" rel="self" type="application/rss+xml" />
+	<link>https://art-supreme.com</link>
+	<description>Buy AI Generated Artwork</description>
+	<lastBuildDate>Sat, 09 Nov 2024 18:25:35 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=5.8.10</generator>
+	<item>
+		<title>Perceptive Meadow [SOLD]</title>
+		<link>https://art-supreme.com/product/perceptive-meadow/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=perceptive-meadow</link>
+					<comments>https://art-supreme.com/product/perceptive-meadow/#respond</comments>
+		
+		<dc:creator><![CDATA[Art Supreme]]></dc:creator>
+		<pubDate>Tue, 26 Jul 2016 13:07:42 +0000</pubDate>
+				<guid isPermaLink="false">http://artday-wp.wossthemes.com/artday-xml/?post_type=product&#038;p=581</guid>
+
+					<description><![CDATA[This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.]]></description>
+										<content:encoded><![CDATA[<p>The work fascinates by the essential unreality of the mind. What starts out as vision soon becomes manipulated into a carnival of colours, leaving only a sense of what could have been and the likelihood of a new understanding.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://art-supreme.com/product/perceptive-meadow/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Swirl Dance</title>
+		<link>https://art-supreme.com/product/swirl-dance/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=swirl-dance</link>
+					<comments>https://art-supreme.com/product/swirl-dance/#respond</comments>
+		
+		<dc:creator><![CDATA[Art Supreme]]></dc:creator>
+		<pubDate>Tue, 26 Jul 2016 12:56:07 +0000</pubDate>
+				<guid isPermaLink="false">http://artday-wp.wossthemes.com/artday-xml/?post_type=product&#038;p=578</guid>
+
+					<description><![CDATA[This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.]]></description>
+										<content:encoded><![CDATA[<p data-raw="">This work is an  illusionistic, sectional &amp; visceral exploration of poses which is reminiscent of narratives of identity, mortality, loss and love.</p>
+<p data-raw="">The work explores the boundaries between the past and present by using allegory as a form of live-action or real-time role-play.</p>
+<p data-raw="">
+]]></content:encoded>
+					
+					<wfw:commentRss>https://art-supreme.com/product/swirl-dance/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Vulcanic Snap</title>
+		<link>https://art-supreme.com/product/vulcanic-snap/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=vulcanic-snap</link>
+		
+		<dc:creator><![CDATA[Art Supreme]]></dc:creator>
+		<pubDate>Mon, 04 Jan 2016 15:33:05 +0000</pubDate>
+				<guid isPermaLink="false">http://artday-wp.wossthemes.com/product/black-white/</guid>
+
+					<description><![CDATA[This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.]]></description>
+										<content:encoded><![CDATA[<p>These art painting have been hand created a generative adversarial network algorithm trained on Vulcano photos. By applying abstraction, Vulcanic Snap seduces the viewer into a world of ongoing equilibrium and the interval that articulates the stream of daily events.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Seastation</title>
+		<link>https://art-supreme.com/product/seastation/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=seastation</link>
+		
+		<dc:creator><![CDATA[Art Supreme]]></dc:creator>
+		<pubDate>Mon, 04 Jan 2016 15:26:51 +0000</pubDate>
+				<guid isPermaLink="false">http://artday-wp.wossthemes.com/product/green-book/</guid>
+
+					<description><![CDATA[This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.]]></description>
+										<content:encoded><![CDATA[<p>Seastation is presenting the dynamics of landscape, including the manipulation of its effects and the limits of spectacle based on our assumptions of what landscape means to us. Rather than presenting a factual reality, an illusion is fabricated to conjure the realms of our imagination.</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+	</channel>
+</rss>

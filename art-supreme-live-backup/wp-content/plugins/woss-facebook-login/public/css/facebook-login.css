@@ -1,0 +1,23 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+.css-fbl{
+    display: block;
+    margin-bottom: 16px;
+}
+.css-fbl img{
+    display: none;
+    width: 20px;
+    float: right;
+    margin: 0px;
+    height: auto;
+}
+.css-fbl.loading img{
+    display: block;
+}
+.fbl_error {
+    float: left;
+    color: red;
+    width: 100%;
+}

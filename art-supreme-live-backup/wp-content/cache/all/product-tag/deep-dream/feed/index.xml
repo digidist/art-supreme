@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Deep Dream &#8211; ART SUPREME</title>
+	<atom:link href="https://art-supreme.com/product-tag/deep-dream/feed/" rel="self" type="application/rss+xml" />
+	<link>https://art-supreme.com</link>
+	<description>Buy AI Generated Artwork</description>
+	<lastBuildDate>Thu, 14 Nov 2024 00:00:47 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=5.8.10</generator>
+	<item>
+		<title>Eccentric Credence</title>
+		<link>https://art-supreme.com/product/eccentric-credence/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=eccentric-credence</link>
+					<comments>https://art-supreme.com/product/eccentric-credence/#respond</comments>
+		
+		<dc:creator><![CDATA[Art Supreme]]></dc:creator>
+		<pubDate>Tue, 26 Jul 2016 13:05:14 +0000</pubDate>
+				<guid isPermaLink="false">http://artday-wp.wossthemes.com/artday-xml/?post_type=product&#038;p=580</guid>
+
+					<description><![CDATA[This ai art is signed by Art Supreme. It is made on canvas and it comes with the original Certificate of Authenticity.]]></description>
+										<content:encoded><![CDATA[<p data-raw="">This work is a unique, representational wrap of possibilities that reflect viewers’ own attention mechanism. It is a contrasting consequence that AI approximation of the real world representation can often bring with a dose of multi-channel bias which may or may not be the reminiscent of an unpredictable and turbulent world.</p>
+<p data-raw="">
+]]></content:encoded>
+					
+					<wfw:commentRss>https://art-supreme.com/product/eccentric-credence/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+	</channel>
+</rss>
