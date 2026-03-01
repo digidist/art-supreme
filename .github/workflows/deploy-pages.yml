@@ -49,12 +49,20 @@ jobs:
           STRIPE_CURRENCY: ${{ secrets.STRIPE_CURRENCY }}
         run: node scripts/stripe-create-links.mjs
 
+      # If push fails (e.g. branch protection), this step fails and the whole pipeline stops.
       - name: Commit updated Stripe links
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add site/products/*/info.json
-          git diff --staged --quiet || (git commit -m "chore: add Stripe payment links for new products" && git push)
+          if git diff --staged --quiet; then
+            echo "No info.json changes (all products already have Stripe links); nothing to commit."
+          else
+            git commit -m "chore: add Stripe payment links for new products"
+            git push origin HEAD:${{ github.ref_name }}
+            echo "Pushed commit to ${{ github.ref_name }}."
+          fi
 
       # Build runs in the same job, so it sees the updated info.json (including any new Stripe URLs).
       - name: Build site

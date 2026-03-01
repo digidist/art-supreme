@@ -67,7 +67,6 @@ async function createPaymentLink(secretKey, product) {
   const successBase = process.env.STRIPE_SUCCESS_URL || 'https://YOUR_USERNAME.github.io/Art-Supreme-Github/';
   params.set('after_completion[type]', 'redirect');
   params.set('after_completion[redirect][url]', successBase.replace(/\/?$/, '/'));
-  params.set('after_completion[redirect][type]', 'url');
 
   const res = await fetch('https://api.stripe.com/v1/payment_links', {
     method: 'POST',
