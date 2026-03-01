@@ -89,9 +89,10 @@ async function createPaymentLink(secretKey, product) {
 async function main() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey && !dryRun) {
-    console.error('Missing STRIPE_SECRET_KEY. Set it in the environment.');
-    process.exit(1);
+    console.log('STRIPE_SECRET_KEY not set; skipping Stripe link creation.');
+    return;
   }
+  if (!secretKey && dryRun) return;
 
   const products = getProducts().filter(p => p.price > 0);
   if (products.length === 0) {

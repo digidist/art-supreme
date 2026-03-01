@@ -41,10 +41,8 @@ jobs:
           node-version: "20"
 
       # Create Stripe Payment Links for products that have price but no stripePaymentLinkUrl.
-      # Requires repo secret STRIPE_SECRET_KEY. If set, new links are created and committed back.
-      # Create Stripe Payment Links for products that have price but no stripePaymentLinkUrl.
+      # Add repo secret STRIPE_SECRET_KEY to enable; if not set, script skips and step succeeds.
       - name: Create Stripe links for new products
-        if: ${{ secrets.STRIPE_SECRET_KEY != '' }}
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_SUCCESS_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
@@ -52,7 +50,6 @@ jobs:
         run: node scripts/stripe-create-links.mjs
 
       - name: Commit updated Stripe links
-        if: ${{ secrets.STRIPE_SECRET_KEY != '' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
