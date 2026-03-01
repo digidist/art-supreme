@@ -47,7 +47,17 @@ Images stay where they are in `site/products/<slug>/`; the build does not copy t
 
 ## Stripe
 
-Put the Payment Link URL in **`info.json`** as **`stripePaymentLinkUrl`** for that product, then run the build. The product page will show a “Buy” button linking to Stripe.
+Each product’s **`info.json`** can include **`stripePaymentLinkUrl`**. If set, the product page shows a “Buy” button that goes to that Stripe Payment Link.
+
+**Option A – automatic in CI (recommended)**  
+1. In the repo: **Settings → Secrets and variables → Actions**, add a secret **`STRIPE_SECRET_KEY`** (your Stripe secret key, e.g. `sk_test_...` or `sk_live_...`).  
+2. For new products, add a folder under **`site/products/<slug>/`** with images and **`info.json`** containing at least **`title`** and **`price`**. Leave **`stripePaymentLinkUrl`** empty or omit it.  
+3. Push to **`main`**. The deploy workflow will create Stripe Payment Links for any product that has a price but no link, write the URLs into **`info.json`**, commit and push those changes, then build and deploy. So you only add the product folder and `info.json`; the pipeline fills in the Stripe link.
+
+**Option B – manual**  
+Run locally (with [Stripe secret key](https://dashboard.stripe.com/apikeys) in the env):  
+`STRIPE_SECRET_KEY=sk_... node scripts/stripe-create-links.mjs`  
+Then commit the updated **`info.json`** files and push. Or create Payment Links in the [Stripe Dashboard](https://dashboard.stripe.com/payment-links) and paste each URL into the product’s **`info.json`** as **`stripePaymentLinkUrl`**.
 
 ## Other folders
 

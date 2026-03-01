@@ -1,5 +1,9 @@
 # Build the static site and deploy to GitHub Pages.
 # In the repo: Settings → Pages → Source = "GitHub Actions".
+#
+# Optional: add repo secret STRIPE_SECRET_KEY (sk_test_... or sk_live_...) so the pipeline
+# auto-creates Stripe Payment Links for any product that has a price but no stripePaymentLinkUrl,
+# then commits those URLs back into site/products/<slug>/info.json.
 
 name: Deploy to GitHub Pages
 
@@ -9,7 +13,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # read + write (write needed to push updated info.json when Stripe links are created)
   pages: write
   id-token: write
 
@@ -36,6 +40,26 @@ jobs:
         with:
           node-version: "20"
 
+      # Create Stripe Payment Links for products that have price but no stripePaymentLinkUrl.
+      # Requires repo secret STRIPE_SECRET_KEY. If set, new links are created and committed back.
+      # Create Stripe Payment Links for products that have price but no stripePaymentLinkUrl.
+      - name: Create Stripe links for new products
+        if: ${{ secrets.STRIPE_SECRET_KEY != '' }}
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_SUCCESS_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          STRIPE_CURRENCY: ${{ secrets.STRIPE_CURRENCY }}
+        run: node scripts/stripe-create-links.mjs
+
+      - name: Commit updated Stripe links
+        if: ${{ secrets.STRIPE_SECRET_KEY != '' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/products/*/info.json
+          git diff --staged --quiet || (git commit -m "chore: add Stripe payment links for new products" && git push)
+
+      # Build runs in the same job, so it sees the updated info.json (including any new Stripe URLs).
       - name: Build site
         run: node scripts/build.mjs
 
