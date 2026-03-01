@@ -3,7 +3,6 @@
   "excerpt": "High resolution 90x120 cm format. Frame included.",
   "content": "",
   "price": 520,
-"stripePaymentLinkUrl": "",
+  "stripePaymentLinkUrl": "https://buy.stripe.com/test_7sY14o1f60VYbS6cXMbII0P",
   "stripeDescription": "AI Artwork"
-
 }

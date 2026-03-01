@@ -3,6 +3,6 @@
   "excerpt": "Frame is included",
   "content": "",
   "price": 430,
-  "stripePaymentLinkUrl": "",
+  "stripePaymentLinkUrl": "https://buy.stripe.com/test_28E8wQaPG8oq5tI7DsbII0G",
   "stripeDescription": "AI Artwork"
 }
