@@ -12,7 +12,7 @@
   let saved=[];
   try {const stored=JSON.parse(localStorage.getItem('art-supreme-saved-works')||'[]');if(Array.isArray(stored))saved=[...new Set(stored.filter(slug=>typeof slug==='string'&&catalog[slug]))];}catch{}
   function updateSaved(){
-    document.querySelectorAll('[data-saved-count]').forEach(el=>el.textContent=saved.length);
+    document.querySelectorAll('[data-saved-count]').forEach(el=>el.textContent=saved.length||'');
     document.querySelectorAll('[data-save]').forEach(button=>{
       const p=catalog[button.dataset.save];if(!p)return;
       const selected=saved.includes(p.slug);button.hidden=false;button.setAttribute('aria-pressed',String(selected));
@@ -25,7 +25,7 @@
     if(button.dataset.bound)return;
     button.dataset.bound='true';button.addEventListener('click',()=>{toggleSaved(button.dataset.save);if(page==='gallery'&&state.saved)renderGallery();});
   });updateSaved();}
-  function card(p){const image=p.images.length?`<img src="${imageUrl(p)}" alt="${escape(p.title)} – catalog image" loading="lazy" decoding="async">`:'<span class="no-image">Image on request</span>';return `<article class="art-card"><button type="button" class="save-work" data-save="${escape(p.slug)}" aria-pressed="false" aria-label="Save ${escape(p.title)}">☆</button>${p.sold?'<span class="sold-mark">Sold</span>':''}<a class="card-image" href="${productUrl(p)}">${image}</a><div class="card-meta"><h3><a href="${productUrl(p)}">${escape(p.title)}</a></h3><span>${escape(p.priceLabel)}</span></div><p class="card-details">${escape(p.size==='Dimensions on request'?'Generative artwork':p.size)}${p.sold?' · Sold':''}</p></article>`;}
+  function card(p){const image=p.images.length?`<img src="${p.artwork?base+p.artwork.url:imageUrl(p)}" alt="${escape(p.title)} – catalog image" loading="lazy" decoding="async">`:'<span class="no-image">Image on request</span>';return `<article class="art-card"><button type="button" class="save-work" data-save="${escape(p.slug)}" aria-pressed="false" aria-label="Save ${escape(p.title)}">☆</button>${p.sold?'<span class="sold-mark">Sold</span>':''}<a class="card-image" href="${productUrl(p)}">${image}</a><div class="card-meta"><h3><a href="${productUrl(p)}">${escape(p.title)}</a></h3><span>${escape(p.priceLabel)}</span></div><p class="card-details">${escape(p.size==='Dimensions on request'?'Generative artwork':p.size)}${p.sold?' · Sold':''}</p></article>`;}
   const query=new URLSearchParams(location.search);
   let state={category:['abstract','figure','landscape'].includes(query.get('category'))?query.get('category'):'all',query:query.get('q')||'',sort:['low','high','name'].includes(query.get('sort'))?query.get('sort'):'curated',saved:query.get('saved')==='1'};
   function rememberGallery(){const params=new URLSearchParams();if(state.category!=='all')params.set('category',state.category);if(state.query)params.set('q',state.query);if(state.sort!=='curated')params.set('sort',state.sort);if(state.saved)params.set('saved','1');const suffix=params.size?'?'+params.toString():'';history.replaceState(null,'','gallery.html'+suffix);try{sessionStorage.setItem('art-supreme-gallery',suffix);}catch{}}

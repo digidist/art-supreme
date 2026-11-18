@@ -1,0 +1,142 @@
+{
+  "checks": [
+    "photographic room with no 3D renderer",
+    "20 artwork choices",
+    "independent room/art changes",
+    "frame preview",
+    "simple frame controls",
+    "room persists across product navigation",
+    "product art navigation keeps details coherent",
+    "original catalog views and zoom",
+    "saved work",
+    "search/filter/sort",
+    "gallery state restored",
+    "saved gallery",
+    "mobile room/art/frame controls",
+    "no-JavaScript catalog and checkout",
+    "photographic controls without WebGL"
+  ],
+  "canonicalProducts": [
+    "artes-face",
+    "aztlan",
+    "brain-affairs",
+    "bullion",
+    "canyon",
+    "colmar",
+    "crusaide",
+    "eccentric-credence",
+    "fifth-element",
+    "head-asylum",
+    "horsegenics",
+    "perceptive-meadow",
+    "seastation",
+    "shipfluent",
+    "splash",
+    "stir",
+    "summer-dream",
+    "swirl-dance",
+    "village",
+    "vulcanic-snap"
+  ],
+  "responsive": [
+    {
+      "width": 360,
+      "route": "/"
+    },
+    {
+      "width": 360,
+      "route": "gallery.html"
+    },
+    {
+      "width": 360,
+      "route": "product/artes-face.html"
+    },
+    {
+      "width": 360,
+      "route": "contact.html"
+    },
+    {
+      "width": 360,
+      "route": "shipping.html"
+    },
+    {
+      "width": 360,
+      "route": "success.html"
+    },
+    {
+      "width": 390,
+      "route": "/"
+    },
+    {
+      "width": 390,
+      "route": "gallery.html"
+    },
+    {
+      "width": 390,
+      "route": "product/artes-face.html"
+    },
+    {
+      "width": 390,
+      "route": "contact.html"
+    },
+    {
+      "width": 390,
+      "route": "shipping.html"
+    },
+    {
+      "width": 390,
+      "route": "success.html"
+    },
+    {
+      "width": 768,
+      "route": "/"
+    },
+    {
+      "width": 768,
+      "route": "gallery.html"
+    },
+    {
+      "width": 768,
+      "route": "product/artes-face.html"
+    },
+    {
+      "width": 768,
+      "route": "contact.html"
+    },
+    {
+      "width": 768,
+      "route": "shipping.html"
+    },
+    {
+      "width": 768,
+      "route": "success.html"
+    },
+    {
+      "width": 1440,
+      "route": "/"
+    },
+    {
+      "width": 1440,
+      "route": "gallery.html"
+    },
+    {
+      "width": 1440,
+      "route": "product/artes-face.html"
+    },
+    {
+      "width": 1440,
+      "route": "contact.html"
+    },
+    {
+      "width": 1440,
+      "route": "shipping.html"
+    },
+    {
+      "width": 1440,
+      "route": "success.html"
+    }
+  ],
+  "javascriptErrors": [],
+  "failedRequests": [],
+  "threeDimensionalRuntimeRequests": []
+}

@@ -18,3 +18,12 @@ npm-debug.log*
 
 # Optional: uncomment to avoid committing the WordPress backup (large)
 # art-supreme-live-backup/
+
+# Isolated, reproducible high-resolution room studies (large source files)
+output/photoreal-study/*.blend
+output/photoreal-study/*.blend1
+
+# Retired local rendering experiments and Python caches
+output/photoreal-study/**/*.blend
+output/photoreal-study/**/*.blend1
+__pycache__/

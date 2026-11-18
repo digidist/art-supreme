@@ -1,0 +1,38 @@
+{
+  "rooms": [
+    {
+      "room": "warm-apartment",
+      "shadow": "rgba(16, 13, 9, 0.31) -2.16216px 2.48648px 2px 0px, rgba(16, 13, 9, 0.37) -7.722px 8.8803px 8.03088px 0px, rgba(16, 13, 9, 0.16) -3.70656px 10.6564px 18.5328px 0px",
+      "frame": "6.1776px",
+      "lightSize": "1466.09px 917px",
+      "lightPosition": "-724.817px -80.7088px",
+      "lightOpacity": "0.32",
+      "source": "http://127.0.0.1:8020/assets/artworks/artes-face.webp",
+      "displayRatio": 1.6005830903790088,
+      "naturalRatio": 1.6017441860465116
+    },
+    {
+      "room": "collectors-room",
+      "shadow": "rgba(16, 13, 9, 0.31) 1.46362px 2.19542px 2px 0px, rgba(16, 13, 9, 0.37) 5.2272px 7.8408px 9.17374px 0px, rgba(16, 13, 9, 0.16) 2.50906px 9.40896px 21.1702px 0px",
+      "frame": "5.2272px",
+      "lightSize": "1834px 917px",
+      "lightPosition": "-958.227px -111.68px",
+      "lightOpacity": "0.23",
+      "source": "http://127.0.0.1:8020/assets/artworks/artes-face.webp",
+      "displayRatio": 1.603448275862069,
+      "naturalRatio": 1.6017441860465116
+    },
+    {
+      "room": "beautiful-mess",
+      "shadow": "rgba(16, 13, 9, 0.31) -1.4747px 1.68538px 2px 0px, rgba(16, 13, 9, 0.37) -5.2668px 6.0192px 14.0849px 0px, rgba(16, 13, 9, 0.16) -2.52806px 7.22304px 32.5037px 0px",
+      "frame": "6.0192px",
+      "lightSize": "1466.09px 917px",
+      "lightPosition": "-731.861px -89.6911px",
+      "lightOpacity": "0.19",
+      "source": "http://127.0.0.1:8020/assets/artworks/artes-face.webp",
+      "displayRatio": 1.6017964071856288,
+      "naturalRatio": 1.6017441860465116
+    }
+  ],
+  "unshadedOriginalView": true
+}

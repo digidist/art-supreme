@@ -1,0 +1,182 @@
+{
+  "artes-face": {
+    "source": "04.jpg",
+    "sourceWidth": 2180,
+    "sourceHeight": 1500,
+    "x": 538,
+    "y": 232,
+    "width": 1102,
+    "height": 688
+  },
+  "summer-dream": {
+    "source": "04.jpg",
+    "sourceWidth": 2180,
+    "sourceHeight": 1500,
+    "x": 574,
+    "y": 344,
+    "width": 1032,
+    "height": 447
+  },
+  "swirl-dance": {
+    "source": "04.jpg",
+    "sourceWidth": 1500,
+    "sourceHeight": 1500,
+    "x": 481,
+    "y": 109,
+    "width": 720,
+    "height": 719
+  },
+  "aztlan": {
+    "source": "01.jpg",
+    "sourceWidth": 1019,
+    "sourceHeight": 1117,
+    "x": 145,
+    "y": 41,
+    "width": 758,
+    "height": 1015
+  },
+  "bullion": {
+    "source": "01.jpg",
+    "sourceWidth": 1019,
+    "sourceHeight": 1117,
+    "x": 162,
+    "y": 58,
+    "width": 733,
+    "height": 979
+  },
+  "fifth-element": {
+    "source": "01.jpg",
+    "sourceWidth": 1019,
+    "sourceHeight": 1117,
+    "x": 181,
+    "y": 44,
+    "width": 658,
+    "height": 993
+  },
+  "stir": {
+    "source": "01.jpg",
+    "sourceWidth": 1019,
+    "sourceHeight": 1117,
+    "x": 181,
+    "y": 58,
+    "width": 663,
+    "height": 1002
+  },
+  "splash": {
+    "source": "01.png",
+    "sourceWidth": 2008,
+    "sourceHeight": 1376,
+    "x": 118,
+    "y": 76,
+    "width": 1766,
+    "height": 1196
+  },
+  "brain-affairs": {
+    "source": "01.jpg",
+    "sourceWidth": 2180,
+    "sourceHeight": 1500,
+    "x": 608,
+    "y": 204,
+    "width": 932,
+    "height": 621
+  },
+  "canyon": {
+    "source": "01.jpg",
+    "sourceWidth": 1088,
+    "sourceHeight": 832,
+    "x": 292,
+    "y": 66,
+    "width": 470,
+    "height": 681
+  },
+  "colmar": {
+    "source": "01.jpg",
+    "sourceWidth": 656,
+    "sourceHeight": 886,
+    "x": 87,
+    "y": 102,
+    "width": 501,
+    "height": 683
+  },
+  "crusaide": {
+    "source": "03.jpg",
+    "sourceWidth": 1500,
+    "sourceHeight": 1500,
+    "x": 506,
+    "y": 82,
+    "width": 574,
+    "height": 806
+  },
+  "eccentric-credence": {
+    "source": "04.jpg",
+    "sourceWidth": 2180,
+    "sourceHeight": 1500,
+    "x": 625,
+    "y": 271,
+    "width": 930,
+    "height": 521
+  },
+  "head-asylum": {
+    "source": "01.jpg",
+    "sourceWidth": 1773,
+    "sourceHeight": 1500,
+    "x": 729,
+    "y": 218,
+    "width": 948,
+    "height": 631
+  },
+  "horsegenics": {
+    "source": "02.jpg",
+    "sourceWidth": 2180,
+    "sourceHeight": 1500,
+    "x": 561,
+    "y": 198,
+    "width": 1038,
+    "height": 690
+  },
+  "perceptive-meadow": {
+    "source": "02.jpg",
+    "sourceWidth": 2180,
+    "sourceHeight": 1500,
+    "x": 602,
+    "y": 222,
+    "width": 926,
+    "height": 614
+  },
+  "seastation": {
+    "source": "02.jpg",
+    "sourceWidth": 2180,
+    "sourceHeight": 1500,
+    "x": 623,
+    "y": 265,
+    "width": 894,
+    "height": 593
+  },
+  "shipfluent": {
+    "source": "02.jpg",
+    "sourceWidth": 2180,
+    "sourceHeight": 1500,
+    "x": 540,
+    "y": 23,
+    "width": 1123,
+    "height": 909
+  },
+  "village": {
+    "source": "01.jpg",
+    "sourceWidth": 1242,
+    "sourceHeight": 828,
+    "x": 226,
+    "y": 105,
+    "width": 779,
+    "height": 543
+  },
+  "vulcanic-snap": {
+    "source": "02.jpg",
+    "sourceWidth": 1773,
+    "sourceHeight": 1500,
+    "x": 680,
+    "y": 241,
+    "width": 939,
+    "height": 624
+  }
+}

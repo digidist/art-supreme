@@ -1,0 +1,19 @@
+{
+  "method": "Built-in imagegen; generated empty-wall photographs, optimized to WebP. Original artworks are separate lossless catalog crops, never generated.",
+  "reference": "output/design-reference.png",
+  "rooms": [
+    {
+      "file": "warm-apartment.webp",
+      "prompt": "Recreate only the approved top hero room photograph, with no artwork, frame, text or UI. Muted worn olive sofa, walnut cabinet and shelves on the far left, monstera, coffee table with books and a ceramic cup, rough warm plaster, golden afternoon light and leafy shadows. Straight-on camera, front wall parallel to sensor. Leave the upper-right wall blank for the real catalog image. Landscape 1.6:1, high photographic realism; sofa top around y=.53, table y=.78. Match the reference furniture, composition and light."
+    },
+    {
+      "file": "collectors-room.webp",
+      "prompt": "Recreate only the approved bottom room photograph, with no artwork, frame, text or UI. Burgundy velvet vintage armchair left, brass floor lamp, book stacks, aged warm plaster, walnut sideboard right, small plant, pleated amber lamp and packed bookshelves at the right edge; magazines on a low glass table in foreground. Blank wall above the sideboard for a separate catalog artwork centered x=.69,y=.31. Landscape 2:1, architectural photographic realism, warm evening light, tactile imperfections."
+    },
+    {
+      "file": "beautiful-mess.webp",
+      "prompt": "A real cluttered small rented city apartment, straight-on camera looking at sofa wall. Old brown patterned sofa, mismatched secondhand chair left, stuffed bookcase, book stacks, laundry, vinyl records, charger cable and takeout carton on foreground coffee table. Cool grey slightly stained plaster, diffuse afternoon daylight from right. Empty upper-right wall at x=.68,y=.29 for compositing actual artwork. No paintings, frames, posters, mirrors, UI or text. Landscape 1.6:1. Beautiful authentic imperfect domestic photography; never cartoon or generic CGI."
+    }
+  ],
+  "note": "Prompts are normalized records of the generation instructions; reference artwork was not generated or repainted."
+}

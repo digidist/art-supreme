@@ -1,0 +1,42 @@
+[
+  {
+    "route": "/",
+    "width": 1440,
+    "choicePanelsInsidePreview": true
+  },
+  {
+    "route": "/",
+    "width": 768,
+    "choicePanelsInsidePreview": true
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "choicePanelsInsidePreview": true
+  },
+  {
+    "route": "/",
+    "width": 360,
+    "choicePanelsInsidePreview": true
+  },
+  {
+    "route": "product/artes-face.html",
+    "width": 1440,
+    "choicePanelsInsidePreview": true
+  },
+  {
+    "route": "product/artes-face.html",
+    "width": 768,
+    "choicePanelsInsidePreview": true
+  },
+  {
+    "route": "product/artes-face.html",
+    "width": 390,
+    "choicePanelsInsidePreview": true
+  },
+  {
+    "route": "product/artes-face.html",
+    "width": 360,
+    "choicePanelsInsidePreview": true
+  }
+]
