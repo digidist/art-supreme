@@ -1,212 +1,118 @@
 #!/usr/bin/env node
-/**
- * Build static site from site/products/ only.
- * Each site/products/<slug>/ has images and optional info.json (title, excerpt, content, price, stripePaymentLinkUrl).
- * Output: site/index.html, site/product/*.html, site/css/style.css (images already in site/products/).
- */
+/** Build the Art Supreme storefront from site/products, preserving canonical product URLs. */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import fs from 'fs';
-import path from 'path';
-
-const ROOT = process.cwd();
-const SITE_DIR = path.join(ROOT, 'site');
-const SITE_PRODUCTS_DIR = path.join(SITE_DIR, 'products');
-const IMAGE_EXT = /\.(jpg|jpeg|png|gif|webp)$/i;
-
+const ROOT = fileURLToPath(new URL('../', import.meta.url));
+const SITE = path.join(ROOT, 'site');
+const SOURCE = path.join(ROOT, 'scripts', 'assets');
+const PRODUCT_DIR = path.join(SITE, 'products');
+const ORIGIN = 'https://art-supreme.com';
+const HEADLINE = 'What if AI art was actually good?';
+const CONTACT = 'info@art-supreme.com';
+const imagePattern = /\.(jpe?g|png|gif|webp)$/i;
+const landscapes = new Set(['colmar','seastation','summer-dream','village','vulcanic-snap','perceptive-meadow','shipfluent']);
+const figures = new Set(['artes-face','aztlan','brain-affairs','canyon','crusaide','head-asylum','horsegenics']);
+const observations = {
+  splash: 'Sharp folds of blue and orange gather around a bright center.',
+  canyon: 'A face appears between bands of gold, green, and rust.',
+  village: 'A green landscape holds together until the shapes begin to slip.',
+  colmar: 'A street scene pulled into saturated color and irregular geometry.',
+  seastation: 'Yellow and turquoise forms sit somewhere between a harbor and an imagined landscape.',
+  horsegenics: 'A familiar animal shape emerges from an arrangement of vivid, unfamiliar forms.',
+  'artes-face': 'A portrait assembled from broken color, recognizable features, and unexpected textures.',
+  stir: 'Color gathers, stretches, and changes direction across the image.',
+  bullion: 'Bright yellow carries a dense arrangement of angular, overlapping shapes.',
+  aztlan: 'A figure meets a crowded field of purple, red, and electric blue.'
+};
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeText = value => String(value ?? '').replace(/—/g, '–');
+const jsonScript = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+function price(product) {
+  return product.price > 0 ? new Intl.NumberFormat('en', { style:'currency', currency:product.currency, maximumFractionDigits:Number.isInteger(product.price)?0:2 }).format(product.price) : 'Price on request';
+}
 function getProducts() {
-  if (!fs.existsSync(SITE_PRODUCTS_DIR)) return [];
-  const dirs = fs.readdirSync(SITE_PRODUCTS_DIR, { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => d.name);
-  const products = [];
-  for (const slug of dirs) {
-    const dirPath = path.join(SITE_PRODUCTS_DIR, slug);
-    const files = fs.readdirSync(dirPath)
-      .filter(f => IMAGE_EXT.test(f))
-      .sort();
-    const infoPath = path.join(dirPath, 'info.json');
-    let meta = { title: slug.replace(/-/g, ' '), excerpt: '', content: '', price: 0, stripePaymentLinkUrl: '' };
-    if (fs.existsSync(infoPath)) {
-      try {
-        meta = { ...meta, ...JSON.parse(fs.readFileSync(infoPath, 'utf8')) };
-      } catch (_) {}
+  if (!fs.existsSync(PRODUCT_DIR)) throw new Error('Missing site/products directory.');
+  return fs.readdirSync(PRODUCT_DIR, {withFileTypes:true}).filter(d=>d.isDirectory()).map(d=>{
+    const infoPath=path.join(PRODUCT_DIR,d.name,'info.json');
+    let meta={};
+    if(fs.existsSync(infoPath)) {
+      try {meta=JSON.parse(fs.readFileSync(infoPath,'utf8'));}
+      catch(error) {throw new Error(`Invalid product JSON: ${infoPath}: ${error.message}`);}
     }
-    products.push({ slug, images: files, ...meta });
-  }
-  return products.sort((a, b) => (a.slug || '').localeCompare(b.slug || ''));
+    const rawPrice=Number(meta.price ?? 0);
+    if(!Number.isFinite(rawPrice)||rawPrice<0)throw new Error(`Invalid price for ${d.name}`);
+    const rawTitle=safeText(meta.title||d.name.replace(/-/g,' '));
+    const excerpt=safeText(meta.excerpt||'');
+    const dimensions=excerpt.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)\s*cm/i);
+    const sold=meta.sold===true||meta.status==='sold'||/\[sold\]/i.test(rawTitle);
+    const payment=String(meta.stripePaymentLinkUrl||'').trim();
+    if(payment) {
+      let valid=false;
+      try {const url=new URL(payment);valid=url.protocol==='https:'&&['buy.stripe.com','checkout.stripe.com'].includes(url.hostname);}
+      catch {}
+      if(!valid)throw new Error(`Invalid Stripe Payment Link for ${d.name}`);
+    }
+    const currency=String(meta.currency||'EUR').toUpperCase();
+    try {new Intl.NumberFormat('en',{style:'currency',currency}).format(0);}catch {throw new Error(`Invalid currency for ${d.name}`);}
+    return {slug:d.name,title:rawTitle.replace(/\s*\[sold\]/ig,'').trim(),price:rawPrice,currency,priceLabel:'',sold,
+      images:fs.readdirSync(path.join(PRODUCT_DIR,d.name),{withFileTypes:true}).filter(f=>f.isFile()&&imagePattern.test(f.name)).map(f=>f.name).sort(),
+      size:safeText(meta.dimensions||meta.size||(dimensions?`${dimensions[1]} × ${dimensions[2]} cm`:'Dimensions on request')),
+      material:safeText(meta.material||(/frame (?:is )?included/i.test(excerpt)?'Frame included':/canvas/i.test(excerpt)?'Canvas':'Details on request')),
+      description:safeText(meta.description||observations[d.name]||'A generative work from the Art Supreme collection.'),
+      excerpt,content:safeText(meta.content||''),stripePaymentLinkUrl:payment,
+      category:landscapes.has(d.name)?'landscape':figures.has(d.name)?'figure':'abstract',
+      roomImages:!['splash','aztlan','bullion','fifth-element','stir'].includes(d.name)};
+  }).sort((a,b)=>a.slug.localeCompare(b.slug)).map(p=>({...p,priceLabel:price(p)}));
 }
-
-function escapeHtml(s) {
-  if (!s) return '';
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+const products=getProducts();
+const catalog=Object.fromEntries(products.map(p=>[p.slug,p]));
+const productUrl=(p,base='')=>`${base}product/${encodeURIComponent(p.slug)}.html`;
+const imageUrl=(p,index=0,base='')=>`${base}products/${encodeURIComponent(p.slug)}/${encodeURIComponent(p.images[index])}`;
+const signature='<span class="brand-signature" role="img" aria-label="Art Supreme"></span>';
+function card(p,base='') {
+  const image=p.images.length?`<img src="${imageUrl(p,0,base)}" alt="${escapeHtml(p.title)} – catalog image" loading="lazy" decoding="async">`:'<span class="no-image">Image on request</span>';
+  return `<article class="art-card"><button type="button" class="save-work" data-save="${escapeHtml(p.slug)}" aria-pressed="false" aria-label="Save ${escapeHtml(p.title)}" hidden>☆</button>${p.sold?'<span class="sold-mark">Sold</span>':''}<a class="card-image" href="${productUrl(p,base)}">${image}</a><div class="card-meta"><h3><a href="${productUrl(p,base)}">${escapeHtml(p.title)}</a></h3><span>${escapeHtml(p.priceLabel)}</span></div><p class="card-details">${escapeHtml(p.size==='Dimensions on request'?'Generative artwork':p.size)}${p.sold?' · Sold':''}</p></article>`;
 }
-
-function layout(title, body, active = '', base = '') {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(title)} | Art Supreme</title>
-  <link rel="stylesheet" href="${base}css/style.css">
-</head>
-<body>
-  <header class="site-header">
-    <a href="${base}index.html" class="logo">Art Supreme</a>
-    <nav>
-      <a href="${base}index.html"${active === 'home' ? ' class="active"' : ''}>Gallery</a>
-      <a href="${base}shipping.html"${active === 'shipping' ? ' class="active"' : ''}>Shipping</a>
-      <a href="${base}contact.html"${active === 'contact' ? ' class="active"' : ''}>Contact</a>
-    </nav>
-  </header>
-  <main class="site-main">
-    ${body}
-  </main>
-  <footer class="site-footer">
-    <p>&copy; Art Supreme. World's first AI gallery.</p>
-  </footer>
-</body>
-</html>`;
+function layout({title,body,page='info',active='',base='',slug='',canonical='',description='',noindex=false,product=null}) {
+  const nav=(href,text,key)=>`<a href="${base}${href}"${active===key?' aria-current="page"':''}>${text}</a>`;
+  const canonicalUrl=ORIGIN+'/'+canonical;
+  const socialImage=product?.images.length?ORIGIN+'/'+imageUrl(product):catalog.splash?.images.length?ORIGIN+'/'+imageUrl(catalog.splash):ORIGIN+'/assets/art-supreme-signature.png';
+  const structured=product?{'@context':'https://schema.org','@type':'VisualArtwork',name:product.title,url:canonicalUrl,image:product.images.map((_,i)=>ORIGIN+'/'+imageUrl(product,i)),description:product.description,artMedium:'Generative AI'}:null;
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#e3e44d"><title>${escapeHtml(title)} | Art Supreme</title><meta name="description" content="${escapeHtml(description||'Explore generative artworks from Art Supreme. View the collection, inspect each work, and find your own answer.')}" >${noindex?'<meta name="robots" content="noindex">':''}<link rel="canonical" href="${escapeHtml(canonicalUrl)}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description||HEADLINE)}"><meta property="og:url" content="${escapeHtml(canonicalUrl)}"><meta property="og:image" content="${escapeHtml(socialImage)}"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="${base}css/style.css"><script src="${base}js/catalog.js" defer></script><script src="${base}js/site.js" defer></script>${structured?`<script type="application/ld+json">${jsonScript(structured)}</script>`:''}</head>
+<body class="theme-poster page-${page}" data-page="${page}" data-base="${base}"${slug?` data-product="${escapeHtml(slug)}"`:''}><a class="skip-link" href="#main">Skip to content</a><header class="site-header"><a class="brand" href="${base}index.html" aria-label="Art Supreme home">${signature}<span class="brand-edition">Generative artworks</span></a><p class="header-line">Generative artworks.<br>A question worth looking at.</p><nav aria-label="Main navigation">${nav('gallery.html','Collection','gallery')}<a href="${base}gallery.html?saved=1" class="saved-nav" hidden>Saved <span data-saved-count>0</span></a>${nav('shipping.html','Shipping','shipping')}${nav('contact.html','Contact ↗','contact')}</nav></header><main id="main">${body}</main><footer class="site-footer"><a href="${base}index.html" aria-label="Art Supreme home">${signature}</a><p>${HEADLINE}</p><a href="${base}gallery.html">Keep looking ↗</a><a href="${base}shipping.html">Shipping & returns</a><a href="${base}contact.html">Contact</a><span>© ${new Date().getUTCFullYear()} Art Supreme · Generative artworks</span></footer></body></html>\n`;
 }
-
-function build() {
-  const products = getProducts();
-  console.log('Products:', products.length);
-
-  fs.mkdirSync(path.join(SITE_DIR, 'product'), { recursive: true });
-  fs.mkdirSync(path.join(SITE_DIR, 'css'), { recursive: true });
-  // site/products/ already has images; we only generate HTML and CSS
-
-  // Index: gallery grid
-  const gridItems = products.map(p => {
-    const img = (p.images && p.images[0]) || '';
-    const imgUrl = img ? `products/${p.slug}/${img}` : '';
-    return `
-    <a href="product/${p.slug}.html" class="product-card">
-      ${imgUrl ? `<img src="${imgUrl}" alt="${escapeHtml(p.title)}" loading="lazy">` : '<div class="no-img">No image</div>'}
-      <span class="product-title">${escapeHtml(p.title)}</span>
-      ${p.price ? `<span class="product-price">€${p.price}</span>` : ''}
-    </a>`;
-  }).join('');
-
-  const indexBody = `
-  <section class="intro">
-    <h1>Art Supreme</h1>
-    <p>World's first AI gallery. Unique artworks generated by artificial neural networks.</p>
-  </section>
-  <section class="gallery grid">
-    ${gridItems}
-  </section>`;
-
-  fs.writeFileSync(
-    path.join(SITE_DIR, 'index.html'),
-    layout('Gallery', indexBody, 'home', ''),
-    'utf8'
-  );
-
-  // Product pages
-  for (const p of products) {
-    const images = (p.images || []).slice().sort();
-    const imgTags = images.map((f, i) =>
-      `<img src="../products/${p.slug}/${f}" alt="${escapeHtml(p.title)} ${i + 1}"${i === 0 ? ' class="main"' : ''} loading="${i === 0 ? 'eager' : 'lazy'}">`
-    ).join('\n    ');
-    const galleryHtml = images.length > 0
-      ? `<div class="product-gallery">${imgTags}</div>`
-      : '';
-    const buyBtn = p.stripePaymentLinkUrl
-      ? `<a href="${escapeHtml(p.stripePaymentLinkUrl)}" class="btn btn-buy" target="_blank" rel="noopener">Buy — €${p.price}</a>`
-      : (p.price ? `<p class="price">€${p.price} — <a href="../contact.html">Contact to purchase</a></p>` : '');
-
-    const body = `
-  <article class="product-page">
-    <a href="../index.html" class="back">← Gallery</a>
-    ${galleryHtml}
-    <div class="product-info">
-      <h1>${escapeHtml(p.title)}</h1>
-      ${p.excerpt ? `<p class="excerpt">${escapeHtml(p.excerpt)}</p>` : ''}
-      ${p.content ? `<div class="content">${escapeHtml(p.content).replace(/\n/g, '<br>')}</div>` : ''}
-      ${buyBtn}
-    </div>
-  </article>`;
-
-    fs.writeFileSync(
-      path.join(SITE_DIR, 'product', p.slug + '.html'),
-      layout(p.title, body, '', '../'),
-      'utf8'
-    );
-  }
-
-  // Static pages (placeholders)
-  const shippingBody = `
-  <article class="page">
-    <h1>Shipping & Return</h1>
-    <p>We ship worldwide. Flat rate shipping. Contact us for details.</p>
-  </article>`;
-  fs.writeFileSync(path.join(SITE_DIR, 'shipping.html'), layout('Shipping', shippingBody, 'shipping', ''), 'utf8');
-
-  const contactBody = `
-  <article class="page">
-    <h1>Contact</h1>
-    <p>Email: <a href="mailto:info@art-supreme.com">info@art-supreme.com</a></p>
-  </article>`;
-  fs.writeFileSync(path.join(SITE_DIR, 'contact.html'), layout('Contact', contactBody, 'contact', ''), 'utf8');
-
-  const successBody = `
-  <article class="page page-success">
-    <div class="success-icon" aria-hidden="true">✓</div>
-    <h1>Thank you for your purchase</h1>
-    <p class="success-lead">Your order has been confirmed. We'll get in touch regarding shipping and delivery.</p>
-    <p>Questions? <a href="contact.html">Contact us</a>.</p>
-    <a href="index.html" class="btn">Back to gallery</a>
-  </article>`;
-  fs.writeFileSync(path.join(SITE_DIR, 'success.html'), layout('Order confirmed', successBody, '', ''), 'utf8');
-
-  // CSS
-  const css = `/* Art Supreme – minimal layout */
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.5; color: #222; background: #fafafa; }
-.site-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: #111; color: #fff; }
-.site-header a { color: inherit; text-decoration: none; }
-.site-header nav a { margin-left: 1.5rem; }
-.site-header nav a:hover, .site-header nav a.active { text-decoration: underline; }
-.site-main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-.site-footer { text-align: center; padding: 2rem; color: #666; font-size: 0.9rem; }
-.intro { text-align: center; margin-bottom: 3rem; }
-.intro h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-.gallery.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
-.product-card { display: block; text-decoration: none; color: inherit; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s; }
-.product-card:hover { transform: translateY(-4px); }
-.product-card img { width: 100%; height: 260px; object-fit: cover; display: block; }
-.product-card .no-img { width: 100%; height: 260px; background: #eee; display: flex; align-items: center; justify-content: center; color: #999; }
-.product-card .product-title { display: block; padding: 0.75rem 1rem; font-weight: 600; }
-.product-card .product-price { display: block; padding: 0 1rem 0.75rem; color: #666; font-size: 0.9rem; }
-.product-page { display: grid; gap: 2rem; }
-@media (min-width: 768px) { .product-page { grid-template-columns: 1fr 1fr; } }
-.product-gallery { display: flex; flex-direction: column; gap: 0.5rem; }
-.product-gallery img { width: 100%; height: auto; border-radius: 8px; }
-.product-gallery img.main { order: -1; }
-.product-info h1 { margin-top: 0; }
-.product-info .excerpt { color: #555; }
-.product-info .content { margin: 1rem 0; }
-.btn { display: inline-block; padding: 0.75rem 1.5rem; background: #111; color: #fff; text-decoration: none; border-radius: 6px; margin-top: 1rem; }
-.btn:hover { background: #333; }
-.back { display: inline-block; margin-bottom: 1rem; color: #666; text-decoration: none; }
-.back:hover { color: #111; }
-.page h1 { margin-top: 0; }
-.page-success { text-align: center; padding: 3rem 2rem; }
-.page-success .success-icon { width: 4rem; height: 4rem; margin: 0 auto 1.5rem; background: #1a7f37; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; line-height: 1; }
-.page-success h1 { font-size: 1.75rem; margin-bottom: 0.75rem; }
-.page-success .success-lead { font-size: 1.1rem; color: #444; margin-bottom: 1.5rem; }
-.page-success .btn { margin-top: 1rem; }
-`;
-
-  fs.writeFileSync(path.join(SITE_DIR, 'css', 'style.css'), css, 'utf8');
-
-  console.log('Built site to', SITE_DIR);
+function write(filename,content){const destination=path.join(SITE,filename);fs.mkdirSync(path.dirname(destination),{recursive:true});fs.writeFileSync(destination,content,'utf8');}
+const featured=catalog.splash||products.find(p=>!p.sold&&p.images.length)||products[0];
+const minimum=products.filter(p=>!p.sold&&p.price>0&&p.currency==='EUR').sort((a,b)=>a.price-b.price)[0];
+const selected=[...new Set([featured?.slug,'canyon','horsegenics',...products.map(p=>p.slug)])].map(s=>catalog[s]).filter(Boolean).slice(0,3);
+const featuredImage=featured?.images.length?`<img src="${imageUrl(featured)}" alt="${escapeHtml(featured.title)} – generative artwork" fetchpriority="high" decoding="async">`:'<span class="no-image">Explore the collection</span>';
+const landing=`<section class="landing-hero"><div class="hero-meta"><span>A QUESTION FROM ART SUPREME</span><span>EXHIBITION / GENERATIVE WORKS</span></div><div class="poster-title"><h1><span>What if</span> <span>AI art was</span> <span>actually <em>good?</em></span></h1><span class="question-mark" aria-hidden="true">?</span></div><div class="poster-evidence"><div><p>You can have your doubts.<br>You can also take a look.</p><a class="action" href="gallery.html">Enter the gallery<span>↗</span></a><span class="medium-note">AI-generated artworks.${minimum?' Catalog prices from '+escapeHtml(minimum.priceLabel)+'.':''}</span></div><figure><a class="image-link" href="${featured?productUrl(featured):'gallery.html'}">${featuredImage}</a><figcaption>EXHIBIT A / ${escapeHtml(featured?.title.toUpperCase()||'THE COLLECTION')}<span>${escapeHtml(featured?.priceLabel||'')}</span></figcaption></figure></div></section><section class="landing-selection"><div class="section-heading"><span class="overline">FROM THE COLLECTION</span><h2>Have a closer look.</h2><a href="gallery.html">All ${products.length} works ↗</a></div><div class="landing-works">${selected.map(p=>card(p)).join('')}</div></section><section class="medium-section" id="medium"><p class="overline">THE MEDIUM</p><h2>The image is here.<br>The response is yours.</h2><div><p>These works were made with generative AI. Some suggest familiar places or figures; others are harder to name.</p><p>Look at the image, its scale, and how it might sit in a room. Open a work for its available views and catalog details.</p><a href="gallery.html">Explore the collection ↗</a></div></section>`;
+write('index.html',layout({title:HEADLINE,body:landing,page:'index',canonical:'',description:'What if AI art was actually good? Explore the Art Supreme collection of generative artworks, with images, prices, and details for every work.'}));
+const gallery=`<section class="gallery-intro"><p class="overline">ART SUPREME / THE COLLECTION</p><h1>The works<span class="gallery-total">${products.length}</span></h1><p>You have the question.<br>Here are the images.</p></section><section class="gallery-controls" aria-label="Collection filters" hidden><div class="category-controls"><button data-category="all" aria-pressed="true">All works</button><button data-category="abstract" aria-pressed="false">Abstract</button><button data-category="figure" aria-pressed="false">Figures</button><button data-category="landscape" aria-pressed="false">Landscapes</button></div><div class="gallery-tools"><label class="search-label"><span class="sr-only">Search artworks</span><input id="gallery-search" type="search" placeholder="Find a work…"></label><label><span class="sr-only">Sort artworks</span><select id="gallery-sort"><option value="curated">Collection order</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="name">Title: A to Z</option></select></label><button id="saved-only" aria-pressed="false">Saved only</button></div></section><div class="gallery-status"><span id="gallery-result-count" role="status" aria-live="polite">${products.length} works</span><button id="reset-filters" hidden>Reset filters ↺</button></div><noscript><p class="gallery-fallback">All works are shown below. Open any work for its images and purchase options.</p></noscript><section class="gallery-grid" id="gallery-grid" aria-label="Artworks">${products.map(p=>card(p)).join('')}</section>`;
+write('gallery.html',layout({title:'The collection',body:gallery,page:'gallery',active:'gallery',canonical:'gallery.html'}));
+for(const p of products){
+  const mailSubject=encodeURIComponent('Art Supreme enquiry: '+p.title);
+  const mailBody=encodeURIComponent(`Hello,\n\nI’m interested in ${p.title}, listed at ${p.priceLabel}. Could you confirm availability, dimensions, materials, framing, and delivery options?\n\nThank you.`);
+  const enquire=`mailto:${CONTACT}?subject=${mailSubject}&body=${mailBody}`;
+  const primary=p.sold?'<a class="enquire-link" href="../gallery.html">Sold – explore other works <span>↗</span></a>':p.stripePaymentLinkUrl?`<a class="enquire-link btn-buy" href="${escapeHtml(p.stripePaymentLinkUrl)}" target="_blank" rel="noopener">Buy – ${escapeHtml(p.priceLabel)} <span>↗</span></a>`:`<a class="enquire-link" href="${escapeHtml(enquire)}">Enquire about this work <span>↗</span></a>`;
+  const img=p.images.length?`<img id="product-main-image" src="${imageUrl(p,0,'../')}" alt="${escapeHtml(p.title)} – catalog image 1" decoding="async">`:'<span class="no-image">Image on request</span>';
+  const related=products.filter(x=>x.slug!==p.slug&&x.category===p.category).concat(products.filter(x=>x.slug!==p.slug&&x.category!==p.category)).slice(0,3);
+  const body=`<section class="product-page"><a class="product-back" href="../gallery.html" id="back-to-gallery">← Collection</a><article class="product-layout"><div class="product-media"><a class="product-image-button" id="open-image" href="${p.images.length?imageUrl(p,0,'../'):'../gallery.html'}" aria-label="${p.images.length?'Enlarge':'Explore the collection'} ${escapeHtml(p.title)}">${img}</a><div class="zoom-label"><span>${p.roomImages?'Room visualization':'Catalog image'}</span><span class="zoom-help" hidden>Click image to enlarge ↗</span></div><div class="product-thumbs" aria-label="Artwork gallery" hidden>${p.images.map((_,i)=>`<button type="button" data-image-index="${i}" aria-label="Show image ${i+1}" aria-pressed="${i===0}"><img src="${imageUrl(p,i,'../')}" alt="" loading="lazy"></button>`).join('')}</div><noscript>${p.images.slice(1).map((_,i)=>`<a href="${imageUrl(p,i+1,'../')}">View image ${i+2} ↗</a>`).join(' · ')}</noscript></div><div class="product-info"><p class="overline">ART SUPREME / ${p.sold?'SOLD':'GENERATIVE ARTWORK'}</p><h1>${escapeHtml(p.title)}</h1><p class="product-price">${escapeHtml(p.priceLabel)}${p.sold?' · Sold':''}</p><p class="product-summary">${escapeHtml(p.description)}</p><dl class="product-specs"><dt>Medium</dt><dd>Generative AI</dd><dt>Dimensions</dt><dd>${escapeHtml(p.size)}</dd><dt>Object details</dt><dd>${escapeHtml(p.material)}</dd><dt>Availability</dt><dd>${p.sold?'Sold':p.stripePaymentLinkUrl?'View checkout options':'Enquire to confirm'}</dd></dl><div class="product-actions">${primary}<button class="product-save" data-save="${escapeHtml(p.slug)}" aria-pressed="false" hidden>Save this work <span>☆</span></button></div><p class="enquiry-note">${p.sold?'This work is marked sold in the catalog.':p.stripePaymentLinkUrl?'Checkout opens securely with Stripe.':'An enquiry opens your email app. No payment is taken here.'}</p><div class="product-details"><details><summary>About this work</summary><p class="product-description">${escapeHtml(p.content||p.description)}</p>${p.excerpt?`<p>${escapeHtml(p.excerpt)}</p>`:''}</details><details><summary>Size, framing & delivery</summary><p>${escapeHtml(p.size)}. ${escapeHtml(p.material)}. <a href="../shipping.html">Read about shipping and returns</a>, or <a href="${escapeHtml(enquire)}">ask about the work</a> before ordering.</p></details><details><summary>About the room images</summary><p>Room scenes are visualizations showing how an artwork could sit in a space. Use the confirmed dimensions to judge the size of the physical work.</p></details></div></div></article></section><section class="related-section"><div class="section-heading"><span class="overline">KEEP LOOKING</span><h2>Other possibilities.</h2><a href="../gallery.html">All works ↗</a></div><div class="related-grid">${related.map(x=>card(x,'../')).join('')}</div></section>`;
+  write(`product/${p.slug}.html`,layout({title:p.title,body,page:'product',base:'../',slug:p.slug,canonical:`product/${encodeURIComponent(p.slug)}.html`,description:`${p.title} – ${p.priceLabel}. ${p.description}`,product:p}));
 }
-
-build();
+const infoHeading=(label,title)=>`<section class="page-heading"><p class="overline">${label}</p><h1>${title}</h1></section>`;
+write('contact.html',layout({title:'Contact',active:'contact',canonical:'contact.html',body:infoHeading('ART SUPREME / CONTACT','Let’s talk<br>about the work.')+`<section class="info-layout"><div><h2>Get in touch.</h2><p>Questions about an artwork, its size, framing, or delivery? Write to us.</p><p><a class="contact-address" href="mailto:${CONTACT}">${CONTACT}</a></p><a class="action" href="gallery.html">Explore the collection <span>↗</span></a></div><aside class="info-aside"><p class="overline">YOUR ENQUIRY</p><h2>Start with<br>the picture.</h2><p>Include the work’s title and your delivery country. You can also open a product page and use its enquiry button to start an email with the work already named.</p></aside></section>`}));
+write('shipping.html',layout({title:'Shipping & returns',active:'shipping',canonical:'shipping.html',body:infoHeading('ART SUPREME / DELIVERY','Shipping<br>& returns.')+`<section class="info-layout"><div><h2>From the gallery<br>to your wall.</h2><p>We ship worldwide. Flat rate shipping. Contact us for details.</p><p>For the shipping cost, delivery timing, and return arrangements for a particular work, <a href="mailto:${CONTACT}">get in touch</a> before ordering.</p><a class="action" href="contact.html">Ask about delivery <span>↗</span></a></div><aside class="info-aside"><p class="overline">BEFORE YOU ORDER</p><h2>A few useful<br>details.</h2><p>Tell us which artwork you’re considering and where it will be delivered. Confirm the final dimensions, framing, and delivery arrangements for that work.</p></aside></section>`}));
+write('success.html',layout({title:'Thank you',canonical:'success.html',noindex:true,body:infoHeading('ART SUPREME','Thank you.')+`<section class="info-layout success-layout"><div><h2>Your next<br>possibility.</h2><p>If you completed checkout, refer to your checkout confirmation for payment details.</p><p>For questions about your artwork or delivery, contact <a href="mailto:${CONTACT}">${CONTACT}</a>.</p><a class="action" href="gallery.html">Back to the gallery <span>↗</span></a></div><aside class="info-aside"><p class="overline">ART SUPREME</p><h2>What if AI art<br>was actually good?</h2><p>There is always another image worth a closer look.</p></aside></section>`}));
+fs.mkdirSync(path.join(SITE,'js'),{recursive:true});
+write('js/catalog.js',`window.ART_CATALOG=${jsonScript(catalog)};\n`);
+for(const [source,destination] of [['site.css','css/style.css'],['site.js','js/site.js'],['art-supreme-signature.png','assets/art-supreme-signature.png']]){
+ fs.mkdirSync(path.dirname(path.join(SITE,destination)),{recursive:true});fs.copyFileSync(path.join(SOURCE,source),path.join(SITE,destination));
+}
+const urls=['','gallery.html','contact.html','shipping.html',...products.map(p=>`product/${encodeURIComponent(p.slug)}.html`)];
+write('sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(url=>`<url><loc>${ORIGIN}/${escapeHtml(url)}</loc></url>`).join('')}</urlset>\n`);
+write('robots.txt',`User-agent: *\nAllow: /\nDisallow: /actually-good/\nDisallow: /directions/\nDisallow: /success.html\nSitemap: ${ORIGIN}/sitemap.xml\n`);
+console.log(`Built Art Supreme: ${products.length} products, landing page, gallery, contact, shipping, and checkout return page.`);

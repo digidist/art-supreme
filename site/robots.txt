@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /actually-good/
+Disallow: /directions/
+Disallow: /success.html
+Sitemap: https://art-supreme.com/sitemap.xml
