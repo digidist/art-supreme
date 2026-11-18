@@ -1,0 +1,149 @@
+{
+  "layouts": [
+    {
+      "route": "/",
+      "width": 360,
+      "menu": "closed",
+      "photoHeight": 338.390625,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "/",
+      "width": 360,
+      "menu": "room",
+      "photoHeight": 338.390625,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "/",
+      "width": 360,
+      "menu": "artwork",
+      "photoHeight": 338.390625,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "menu": "closed",
+      "photoHeight": 366.59375,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "menu": "room",
+      "photoHeight": 366.59375,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "menu": "artwork",
+      "photoHeight": 366.59375,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "/",
+      "width": 430,
+      "menu": "closed",
+      "photoHeight": 404.1875,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "/",
+      "width": 430,
+      "menu": "room",
+      "photoHeight": 404.1875,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "/",
+      "width": 430,
+      "menu": "artwork",
+      "photoHeight": 404.1875,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 360,
+      "menu": "closed",
+      "photoHeight": 338.390625,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 360,
+      "menu": "room",
+      "photoHeight": 338.390625,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 360,
+      "menu": "artwork",
+      "photoHeight": 338.390625,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 390,
+      "menu": "closed",
+      "photoHeight": 366.59375,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 390,
+      "menu": "room",
+      "photoHeight": 366.59375,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 390,
+      "menu": "artwork",
+      "photoHeight": 366.59375,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 430,
+      "menu": "closed",
+      "photoHeight": 404.1875,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 430,
+      "menu": "room",
+      "photoHeight": 404.1875,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    },
+    {
+      "route": "product/artes-face.html",
+      "width": 430,
+      "menu": "artwork",
+      "photoHeight": 404.1875,
+      "controlsBelowPhoto": true,
+      "menuBelowControls": true
+    }
+  ],
+  "javascriptErrors": []
+}

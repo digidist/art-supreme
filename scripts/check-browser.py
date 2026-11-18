@@ -25,6 +25,10 @@ async def main():
    await page.evaluate("Promise.all(Array.from(document.images).map(i=>{i.loading='eager';return i.decode().catch(()=>{})}))")
    await page.screenshot(path=str(OUT/name),full_page=True)
   async def no_overflow():assert not await page.evaluate('document.documentElement.scrollWidth>innerWidth'),(page.url,await page.evaluate('innerWidth'))
+  async def no_mobile_photo_overlap():
+   boxes=await page.evaluate('''()=>{const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return {top:r.top,bottom:r.bottom}};return {photo:box('[data-room-stage]'),dock:box('.world-dock'),panel:document.querySelector('#world-picker').hidden?null:box('#world-picker')}}''')
+   assert boxes['dock']['top']>=boxes['photo']['bottom']-1,boxes
+   if boxes['panel']:assert boxes['panel']['top']>=boxes['dock']['bottom']-1,boxes
   await goto();await settled();assert await page.locator('h1').inner_text()=='What if AI art\nwas actually good?'
   assert await page.locator('.brand-signature').count()==2
   await capture('home-desktop.png')
@@ -82,9 +86,14 @@ async def main():
    for route in ['', 'gallery.html','product/artes-face.html','contact.html','shipping.html','success.html']:
     await goto(route);await no_overflow()
     if route in ['', 'product/artes-face.html']:await settled()
+    if width<760 and route in ['', 'product/artes-face.html']:await no_mobile_photo_overlap()
     if width==390 and route in ['', 'product/artes-face.html','gallery.html']:
      name={'':'home','product/artes-face.html':'product','gallery.html':'gallery'}[route]
      await capture(name+'-mobile.png')
+     if route in ['', 'product/artes-face.html']:
+      for kind in ['artwork','room']:
+       await page.locator(f'[data-picker="{kind}"]').click();await no_mobile_photo_overlap()
+       await capture(name+'-'+kind+'-selector-mobile.png');await page.keyboard.press('Escape')
     responsive.append({'width':width,'route':route or '/'})
    print('Responsive width',width,'passed',flush=True)
   await page.set_viewport_size({'width':390,'height':844});await goto();await settled()
@@ -92,7 +101,7 @@ async def main():
   await page.locator('[data-picker="room"]').click();assert await page.locator('#world-picker').is_visible();await page.locator('[data-select-room="collectors-room"]').click();await settled();await no_overflow()
   await page.locator('[data-picker="customize"]').click();assert await page.locator('button[data-frame="oak"]').is_visible();await page.keyboard.press('Escape')
   await page.locator('[data-picker="artwork"]').click();await page.locator('[data-select-art="aztlan"]').click();await settled();await no_overflow()
-  checks.append('mobile room/art/frame controls')
+  checks.extend(['mobile room/art/frame controls','mobile dock and both selectors stay below the room photograph'])
   # The photographic experience, catalog and checkout do not require WebGL.
   nojs=await browser.new_page(viewport={'width':390,'height':844},java_script_enabled=False)
   await nojs.goto(URL+'/');assert await nojs.locator('.room-art-fallback').is_visible();assert not await nojs.locator('.world-dock').is_visible()

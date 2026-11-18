@@ -18,7 +18,7 @@ node scripts/build.mjs
 python3 -m http.server 8020 --bind 127.0.0.1 --directory site
 ```
 
-No package installation or framework is needed. Node.js 20 or newer builds the site. Inter is served locally with its SIL Open Font License in `scripts/assets/inter-OFL.txt`; the site does not depend on a runtime CDN.
+No package installation or framework is needed. Node.js 20 or newer builds the site. Inter is served locally with its SIL Open Font License in `scripts/assets/inter-OFL.txt`; the site does not depend on a runtime CDN. Generated CSS and script URLs include a content version so updated mobile styles load after deployment.
 
 ## Source and generated pages
 
@@ -48,7 +48,7 @@ Existing `/product/<slug>.html` URLs are preserved. The catalog remains availabl
 
 The user chose the original photographic direction and explicitly retired the Three.js room. The room photograph provides the lighting, furniture and atmosphere. Original lossless catalog artwork is placed separately in the empty wall space; it is never regenerated or color graded with the room.
 
-The glass dock changes the artwork, room and frame preview independently. Larger selected thumbnails, readable titles and visual choice cards make artwork and room selection clear. The controls adapt to the preview container and stack on mobile; choice panels scroll within the available space. The selected room and frame persist through canonical product navigation. Artwork-only product viewing and the original catalog-image zoom remain available. Portraits and landscapes fit within the wall space without distortion. Responsive placement is recalculated when the preview resizes. Frame highlights, contact shadows and cast shadows follow each room’s light direction. A photograph-aligned illumination layer carries the wall’s light and shadow across the artwork; the artwork-only view and original catalog images remain unshaded.
+The glass dock changes the artwork, room and frame preview independently. Larger selected thumbnails, readable titles and visual choice cards make artwork and room selection clear. The controls adapt to the preview container. On phones, the room photograph sits above the selector dock, and choices expand below the dock without covering the image. Opening a menu reveals its choices; closing it returns to the previous preview position. The selected room and frame persist through canonical product navigation. Artwork-only product viewing and the original catalog-image zoom remain available. Portraits and landscapes fit within the wall space without distortion. Responsive placement is recalculated when the preview resizes. Frame highlights, contact shadows and cast shadows follow each room’s light direction. A photograph-aligned illumination layer carries the wall’s light and shadow across the artwork; the artwork-only view and original catalog images remain unshaded.
 
 No 3D renderer, model, HDR, walking, orbit or WebGL dependency is loaded or copied into the production site. Earlier 3D experiments are retired; do not restore them without a new explicit request. The photo and canonical artwork links render without JavaScript; the dock enhances them when scripting is available.
 
