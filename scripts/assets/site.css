@@ -622,3 +622,21 @@ select option{background:var(--paper)}
 .world-viewer .world-picker{order:1;scroll-margin-top:16px}
 .world-viewer .world-caption{order:2}
 }
+
+/* An image-first phone opening, with copy over the lower part of the photograph. */
+@media(max-width:760px){
+.arrival-world{--mobile-hero-height:clamp(620px,calc(100svh - 68px),760px)}
+.world-viewer.arrival-world{background:#10110f}
+.arrival-world .room-stage{order:0;height:var(--mobile-hero-height)}
+.arrival-world .room-stage:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#080a0808 0%,transparent 37%,#080a0820 51%,#080a08a6 73%,#080a08e8 100%)}
+.world-viewer .arrival-copy{position:absolute;inset:auto 24px auto;top:calc(var(--mobile-hero-height) - 230px);padding:0;z-index:4}
+.arrival-copy h1{font-size:clamp(34px,8.6vw,48px);line-height:1.06;letter-spacing:-.045em;text-shadow:0 2px 24px #0004}
+.arrival-copy .overline{font-size:11px;letter-spacing:.14em}
+.arrival-copy>p:not(.overline){font-size:15px;color:#f4f1e8d9}
+.arrival-copy>a{font-size:13px;margin-top:20px}
+.world-viewer.arrival-world,.world-viewer.product-world{background:#10110f}
+.world-viewer .world-controls,.world-viewer.product-world .world-controls{background:#10110f;border-top-color:#ffffff1f;padding-top:18px}
+.world-viewer .world-dock{background:linear-gradient(125deg,#ffffff0d,transparent),#20221e;border-color:#ffffff30;box-shadow:0 8px 22px #0002,inset 0 1px 0 #ffffff25}
+.world-viewer .world-picker{background:#1b1d19;border-color:#ffffff30}
+.product-world .viewer-mode{background:#ffffff08}
+}
