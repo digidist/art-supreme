@@ -277,3 +277,7 @@ select option{background:var(--paper);color:var(--ink)}
 @media(max-width:370px){.site-header nav{width:100%;justify-content:space-between;margin-left:0}.site-header .brand-signature{width:180px;height:55px}}
 
 [hidden]{display:none!important}
+
+/* The approved 2017 origin note sits between the opening and the collection. */
+.founder-note{margin:35px 4% 65px;padding:35px 40px 40px;border:2px solid var(--ink);box-shadow:7px 7px 0 var(--ink);background:#f7f7e8;display:grid;grid-template-columns:.8fr 1.6fr;gap:7%;align-items:start}.founder-heading .overline{font-size:10px;margin-bottom:25px}.founder-heading h2{font:clamp(48px,5.2vw,78px)/.94 Impact,'Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:-.015em;max-width:350px}.founder-copy{max-width:720px}.founder-copy p{font-size:16px;line-height:1.65}.founder-copy p+p{margin-top:21px}
+@media(max-width:760px){.founder-note{margin:30px 5% 45px;padding:26px 24px 30px;grid-template-columns:1fr;gap:25px;box-shadow:5px 5px 0 var(--ink)}.founder-heading .overline{font-size:9px;margin-bottom:18px}.founder-heading h2{font-size:53px;max-width:300px}.founder-copy p{font-size:15px;line-height:1.65}.founder-copy p+p{margin-top:19px}}

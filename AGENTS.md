@@ -8,3 +8,5 @@
 - Use en dashes (–) rather than em dashes in public copy and metadata. Do not invent edition sizes, availability, provenance claims, production methods, or testimonials. Room scenes are visualizations.
 - The folders `site/actually-good/` and `site/directions/` are local design studies. Keep production source independent from them and keep commits focused on the requested work.
 - Run the relevant build regression checks with `node --test scripts/build.test.mjs`. Inspect the affected user journeys and responsive layouts for visual changes.
+
+- The homepage origin note uses the author’s approved wording headed “It started in 2017.” Keep the history as a personal AI experiment alongside AI/data-modelling work; present future historical significance as a belief. Do not add discussion of selling the early images or income goals.
