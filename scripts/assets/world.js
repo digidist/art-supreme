@@ -20,14 +20,17 @@ function initializeWorld(root){
  const roomImage=id=>new URL(`${base}assets/rooms/${id}.webp`,document.baseURI).href;
  const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let stored={};try{stored=JSON.parse(localStorage.getItem(storageKey)||'{}')||{};}catch{}
- let art=catalog[isProduct?root.dataset.initialArt:stored.art]||catalog[root.dataset.initialArt]||works[0];
+ let art=catalog[root.dataset.initialArt]||works[0];
+ let requestedArt=art;
+ let artworkRequest=0;
+ const preparedArtwork=new Map();
  let room=rooms.find(r=>r.id===stored.room)||rooms[0];
  let frame=['black','oak','none'].includes(stored.frame)?stored.frame:'black';
  let view='room',picker=null,pickerReturnY=null;
  const sceneUpdate=()=>layoutArtwork();
  let feedbackTimer;
  root.dataset.renderer='photograph';root.dataset.scene='photograph';root.setAttribute('aria-busy','false');
- const persist=()=>{try{localStorage.setItem(storageKey,JSON.stringify({art:art.slug,room:room.id,frame}));}catch{}};
+ const persist=(work=art)=>{try{localStorage.setItem(storageKey,JSON.stringify({art:work.slug,room:room.id,frame}));}catch{}};
  function feedback(message,timeout=5000){clearTimeout(feedbackTimer);status.textContent=message;if(timeout)feedbackTimer=setTimeout(()=>status.textContent='',timeout);}
  function sync(){
   root.dataset.art=art.slug;root.dataset.room=room.id;root.dataset.frame=frame;
@@ -49,17 +52,74 @@ function initializeWorld(root){
   requestAnimationFrame(layoutArtwork);
   root.querySelectorAll('[data-view-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.viewMode===view)));
  }
- function selectArt(slug,{navigate=true}={}){
+ function prepareArtwork(work){
+  if(!preparedArtwork.has(work.slug)){
+   const src=base+work.artwork.url;
+   const image=new Image();
+   const thumbnail=new Image();
+   thumbnail.dataset.artThumb='';
+   thumbnail.alt='';
+   image.src=thumbnail.src=src;
+   const preparation=Promise.all([image.decode(),thumbnail.decode()]).then(()=>({image,thumbnail}));
+   preparedArtwork.set(work.slug,preparation);
+   preparation.catch(()=>{
+    if(preparedArtwork.get(work.slug)===preparation)preparedArtwork.delete(work.slug);
+   });
+  }
+  return preparedArtwork.get(work.slug);
+ }
+ function warmNearbyArtwork(){
+  if(isProduct)return;
+  const index=works.indexOf(art);
+  const nearby=[0,1,2,-1].map(offset=>works[(index+offset+works.length)%works.length]);
+  for(const slug of preparedArtwork.keys()){
+   if(!nearby.some(work=>work.slug===slug))preparedArtwork.delete(slug);
+  }
+  for(const work of nearby.slice(1))prepareArtwork(work);
+ }
+ async function selectArt(slug,{navigate=true}={}){
   const p=catalog[slug];if(!p?.artwork)return;
-  art=p;persist();
-  if(isProduct&&navigate&&art.slug!==root.dataset.initialArt){location.assign(productUrl(art));return;}
-  sync();sceneUpdate();if(picker==='artwork')renderPicker();
+  requestedArt=p;
+  const request=++artworkRequest;
+  if(isProduct&&navigate&&p.slug!==root.dataset.initialArt){persist(p);location.assign(productUrl(p));return;}
+  feedback('');
+  root.setAttribute('aria-busy',String(p!==art));
+  if(p===art){persist();warmNearbyArtwork();return;}
+  try{
+   const {image,thumbnail}=await prepareArtwork(p);
+   // A slower request must never overwrite a more recent choice.
+   if(request!==artworkRequest)return;
+   $('.room-art-fallback img').replaceWith(image);
+   $('[data-art-thumb]').replaceWith(thumbnail);
+   art=p;
+   persist();
+   sync();
+   layoutArtwork();
+   if(!reduced){
+    image.getAnimations().forEach(animation=>animation.cancel());
+    image.animate([{opacity:.78},{opacity:1}],{duration:170,easing:'ease-out'});
+   }
+   if(picker==='artwork')renderPicker();
+   warmNearbyArtwork();
+  }catch{
+   if(request!==artworkRequest)return;
+   requestedArt=art;
+   feedback('Couldn’t load that artwork. Try again.');
+   for(const slug of preparedArtwork.keys()){
+    if(slug!==art.slug)preparedArtwork.delete(slug);
+   }
+  }finally{
+   if(request===artworkRequest)root.setAttribute('aria-busy','false');
+  }
  }
  function selectRoom(id){const next=rooms.find(r=>r.id===id);if(!next)return;room=next;persist();sync();sceneUpdate();closePicker();}
  function nextWorld(){
   const options=rooms.filter(r=>r.id!==room.id);room=options[Math.floor(Math.random()*options.length)];
-  if(!isProduct){const other=works.filter(p=>p.slug!==art.slug);art=other[Math.floor(Math.random()*other.length)]||art;}
   persist();view='room';sync();closePicker();
+  if(!isProduct){
+   const other=works.filter(p=>p!==requestedArt);
+   if(other.length)selectArt(other[Math.floor(Math.random()*other.length)].slug);
+  }
  }
  function renderPicker(){
   $('[data-picker-title]').textContent={artwork:'Find your next work',room:'Choose your world',customize:'Make yourself at home'}[picker];
@@ -89,7 +149,7 @@ function initializeWorld(root){
   const b=e.target.closest('button');if(!b)return;
   if(b.dataset.picker){openPicker(b.dataset.picker);return;}
   if(b.hasAttribute('data-close-picker')){closePicker({restore:true});return;}
-  if(b.dataset.artStep){const i=works.findIndex(p=>p.slug===art.slug);selectArt(works[(i+Number(b.dataset.artStep)+works.length)%works.length].slug);return;}
+  if(b.dataset.artStep){const i=works.indexOf(requestedArt);selectArt(works[(i+Number(b.dataset.artStep)+works.length)%works.length].slug);return;}
   if(b.dataset.selectArt){selectArt(b.dataset.selectArt);closePicker();return;}
   if(b.dataset.selectRoom){selectRoom(b.dataset.selectRoom);return;}
   if(b.dataset.frame){frame=b.dataset.frame;persist();sync();sceneUpdate();renderPicker();return;}
@@ -156,4 +216,12 @@ function initializeWorld(root){
   const path=$('[data-leader-line]');if(path)path.setAttribute('d',`M ${x} ${y} L ${x+sign*24} ${y-rise} L ${x+sign*32} ${y-rise}`);
  }
  layoutArtwork();
+ if(!isProduct&&catalog[stored.art]?.artwork&&stored.art!==art.slug){
+  selectArt(stored.art);
+ }else{
+  const initialRequest=artworkRequest;
+  $('.room-art-fallback img').decode().catch(()=>{}).then(()=>{
+   if(initialRequest===artworkRequest)warmNearbyArtwork();
+  });
+ }
 }
