@@ -55,7 +55,7 @@ test('hosted checkout uses the published gallery and one Stripe product without 
  const stripeRequests=[];
  t.mock.method(globalThis,'fetch',async (url,options)=>{
   stripeRequests.push([url,options]);
-  return Response.json({livemode:true,url:'https://checkout.stripe.com/c/pay/cs_live_fixture#checkout'});
+  return Response.json({id:'cs_live_fixture',livemode:true,url:'https://checkout.stripe.com/c/pay/cs_live_fixture#checkout'});
  });
  const request=(slug,options={})=>new Request('https://art-supreme.com/api/checkout/'+slug,{method:'POST',...options});
  assert.equal((await startCheckout(request('removed-work'),env,catalog)).status,404);

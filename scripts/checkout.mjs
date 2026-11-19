@@ -81,12 +81,20 @@ export async function startCheckout(request, env, catalog) {
     const session = await response.json();
     if (!response.ok) {
       console.error('Stripe checkout request failed', response.status, session.error?.code || session.error?.type);
-    } else if (session.livemode === !testMode && typeof session.url === 'string') {
+    } else if (session.livemode === !testMode && typeof session.id === 'string' &&
+        session.id.startsWith(`cs_${keyMode}_`) && typeof session.url === 'string') {
       const checkoutUrl = new URL(session.url);
-      if (checkoutUrl.origin === 'https://checkout.stripe.com' &&
-          checkoutUrl.pathname.startsWith(`/c/pay/cs_${keyMode}_`)) {
+      // Stripe may return the account's custom Checkout domain.
+      if (checkoutUrl.protocol === 'https:' && !checkoutUrl.username && !checkoutUrl.password) {
         return new Response(null, { status: 303, headers: { Location: checkoutUrl.href, 'Cache-Control': 'no-store' } });
       }
+      console.error('Stripe returned a non-HTTPS checkout URL.');
+    } else {
+      console.error('Stripe returned an unexpected Checkout Session:', {
+        livemode: session.livemode,
+        hasSessionId: typeof session.id === 'string',
+        hasCheckoutUrl: typeof session.url === 'string',
+      });
     }
   } catch {
     console.error('Stripe checkout request could not be completed.');
