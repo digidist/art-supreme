@@ -1,7 +1,5 @@
-import catalog from './.checkout-catalog.json' with { type: 'json' };
-
 const stripeSessions = 'https://api.stripe.com/v1/checkout/sessions';
-const checkoutPath = '/api/checkout';
+export const checkoutPath = '/api/checkout';
 const contact = 'mailto:info@art-supreme.com';
 
 function checkoutMessage(status, message, returnPath = '/gallery.html', headers = {}) {
@@ -16,7 +14,8 @@ function checkoutMessage(status, message, returnPath = '/gallery.html', headers 
   });
 }
 
-async function startCheckout(request, env, url) {
+export async function startCheckout(request, env, catalog) {
+  const url = new URL(request.url);
   if (request.method !== 'POST') {
     return checkoutMessage(405, 'Open an artwork page to start checkout.', undefined, { Allow: 'POST' });
   }
@@ -94,16 +93,3 @@ async function startCheckout(request, env, url) {
   }
   return checkoutMessage(502, 'Checkout could not open. Please return to the artwork and try again, or contact us.', productPage);
 }
-
-export default {
-  fetch(request, env) {
-    const url = new URL(request.url);
-    if (url.pathname === checkoutPath || url.pathname.startsWith(checkoutPath + '/')) {
-      return startCheckout(request, env, url);
-    }
-    if (url.pathname === '/') {
-      return env.ASSETS.fetch(new Request(new URL('/index.html', url), request));
-    }
-    return env.ASSETS.fetch(request);
-  },
-};

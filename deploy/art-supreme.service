@@ -1,0 +1,19 @@
+[Unit]
+Description=Art Supreme checkout
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=art-supreme
+Group=art-supreme
+EnvironmentFile=/srv/art-supreme/current/runtime.env
+Environment=ART_SUPREME_CHECKOUT_CATALOG=/srv/art-supreme/current/scripts/.checkout-catalog.json
+ExecStart=/usr/bin/node /srv/art-supreme/current/scripts/checkout-server.mjs
+Restart=on-failure
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+
+[Install]
+WantedBy=multi-user.target

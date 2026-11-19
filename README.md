@@ -83,13 +83,15 @@ Prices, images, existing descriptions, and payment links come from the product f
 
 ### Enable live checkout
 
-1. In the Stripe Dashboard, create one product called **Art Supreme Canvas Artwork** and copy its `prod_…` ID. The Worker creates each checkout with an inline price and uses the existing product ID. Configure the tax category on the shared product if applicable.
-2. Connect the repository’s `main` branch to a Cloudflare Worker named `art-supreme`. Set its build command to `node scripts/build.mjs --checkout` and its deploy command to `npx wrangler@4 deploy`. Publish the Worker and static assets together so the storefront and checkout use the same release.
-3. In the Worker’s runtime settings, set `STRIPE_SHARED_PRODUCT_ID` and add `STRIPE_CHECKOUT_SECRET_KEY` as an encrypted secret. Start with a restricted Stripe key granting **Checkout Sessions** write access. Verify Checkout in a preview environment before pointing `art-supreme.com` to the Worker. To use Stripe sandbox in a separate preview, set `STRIPE_CHECKOUT_MODE=test` and supply a sandbox product ID and key there.
+1. In Stripe’s live Product Catalog, create or open **Art Supreme Canvas Artwork** and copy its `prod_…` ID. Store it as the GitHub Actions **variable** `STRIPE_SHARED_PRODUCT_ID`.
+2. Save a live restricted Stripe key under the GitHub Actions **secret** `STRIPE_SECRET_KEY`. Start with **Checkout Sessions** write access. GitHub deploys the secret into a private runtime file on the VPS. The static site and the checkout process use the same release.
+3. Run **Deploy Art Supreme to VPS** from `main`. When the Stripe settings change, deployment verifies that Stripe can create a checkout session before accepting the release. With the shared product ID unset, the site offers email enquiries.
 
-Edit and publish the gallery to add works, rename them, change prices, or mark them sold. Each new checkout reads the current published snapshot. Stripe stores the normal Checkout Session and payment records. The session carries the artwork slug as its reference and displays the title in checkout text. The Worker sends no Stripe metadata fields and makes no changes to the shared Product.
+To create the shared product through the API, temporarily grant **Products** write access and run the workflow with `bootstrap_product` enabled. It creates or verifies `prod_artSupremeCanvas`. After the run, save that ID as `STRIPE_SHARED_PRODUCT_ID` and set **Products** back to **None**. Subsequent runs use the shared ID.
 
-Hosted sessions expire after roughly 31 minutes. An open session keeps its original price, and completed payments do not update the gallery’s sold status automatically. Confirm Croatian VAT and shipping terms before accepting live orders. The return page does not verify payment.
+Edit and publish the gallery to add works, rename them, change prices, or mark them sold. New Stripe sessions use the new gallery snapshot. The session uses the artwork slug as its reference and shows the title as checkout text. The code sends no Stripe metadata fields or product updates. Stripe keeps its normal checkout and payment records.
+
+Hosted sessions expire after roughly 31 minutes. An open session keeps its original price. Mark a work sold in the gallery after payment. Confirm Croatian VAT and shipping terms before accepting live orders. The return page does not verify payment.
 
 ## Verify
 
@@ -106,12 +108,16 @@ For the complete browser check, start the local server, install Playwright in a 
 python scripts/check-browser.py http://127.0.0.1:8020
 ```
 
-For hosted checkout, run `node scripts/build.mjs --checkout` and `npx wrangler@4 dev --local`. Then run `python scripts/check-browser.py http://127.0.0.1:8787 --checkout`.
+For the checkout-enabled page layouts, run `node scripts/build.mjs --checkout` before the browser checks and add `--checkout` to the browser command. On the VPS, Nginx serves the static files and proxies checkout to the local Node service.
 
 The checks exercise photographic room controls, the artwork-attached label, room-preserving artwork choices, product navigation, previews, gallery filters, saved works, all canonical product states, widths 360/390/768/1440, and no-JavaScript rendering and operation without WebGL. Results and full-page captures go to `output/verification/`.
 
 ## Deployment
 
-The existing GitHub Actions workflow publishes the static build to GitHub Pages. The checkout-enabled build uses Cloudflare Workers and the same `site/` directory. After verifying the Worker and switching the public domain `https://art-supreme.com/` to it, disable the old Pages deployment. Future pushes to the connected branch deploy the site and checkout together.
+Art Supreme deploys to the ImaginePrint VPS from its own repository. Nginx serves the storefront, and the dedicated `art-supreme.service` runs checkout on `127.0.0.1:3009`. Releases live under `/srv/art-supreme/releases`. The deployment keeps the previous release available for rollback.
+
+For a new VPS, install the files in `deploy/` using `deploy/install-vps.sh` as root. Give the `art-supreme` user a dedicated SSH deploy key restricted to `/usr/local/libexec/art-supreme-deploy`, and install `deploy/activate-release.sh` there. Set `VPS_HOST`, `VPS_SSH_KEY`, and `VPS_KNOWN_HOSTS` as repository secrets. Pushes to `main` deploy via SSH.
+
+For the first domain cutover, point the apex `art-supreme.com` A record to the VPS and point `www` to the same host. Remove the old GitHub Pages records and use DNS-only mode while issuing the certificate. Once both names resolve to the VPS, run `art-supreme-enable-https` on the server and verify both domains and Stripe checkout.
 
 The local `site/actually-good/` and `site/directions/` folders are earlier design studies, separate from the public build source. They are not required for the storefront. Their paths are excluded from crawling in the generated robots file.

@@ -49,29 +49,25 @@ test('hosted checkout uses the published gallery and one Stripe product without 
  assert.match(f.read('product/unpriced-work.html'),/mailto:info@art-supreme\.com/);
  assert.equal(fs.existsSync(path.join(f.root,'site/product/removed-work.html')),false);
 
- fs.copyFileSync(path.join(scripts,'checkout-worker.mjs'),path.join(f.root,'scripts/checkout-worker.mjs'));
- const {default:worker}=await import(pathToFileURL(path.join(f.root,'scripts/checkout-worker.mjs')).href);
+ const catalog=JSON.parse(fs.readFileSync(path.join(f.root,'scripts/.checkout-catalog.json'),'utf8'));
+ const {startCheckout}=await import(pathToFileURL(path.join(scripts,'checkout.mjs')).href);
  const env={STRIPE_CHECKOUT_SECRET_KEY:'rk_live_fixture',STRIPE_SHARED_PRODUCT_ID:'prod_fixture'};
- const assetRequests=[];
- env.ASSETS={fetch:request=>{assetRequests.push(new URL(request.url).pathname);return new Response('asset');}};
  const stripeRequests=[];
  t.mock.method(globalThis,'fetch',async (url,options)=>{
   stripeRequests.push([url,options]);
   return Response.json({livemode:true,url:'https://checkout.stripe.com/c/pay/cs_live_fixture#checkout'});
  });
  const request=(slug,options={})=>new Request('https://art-supreme.com/api/checkout/'+slug,{method:'POST',...options});
- assert.equal((await worker.fetch(new Request('https://art-supreme.com/'),env)).status,200);
- assert.deepEqual(assetRequests,['/index.html']);
- assert.equal((await worker.fetch(request('removed-work'),env)).status,404);
- assert.equal((await worker.fetch(request('sold-work'),env)).status,409);
- assert.equal((await worker.fetch(request('unpriced-work'),env)).status,409);
- assert.equal((await worker.fetch(request('renamed-work',{method:'GET'}),env)).status,405);
- assert.equal((await worker.fetch(request('renamed-work',{headers:{origin:'https://example.org'}}),env)).status,403);
- assert.equal((await worker.fetch(request('renamed-work'),{})).status,503);
- assert.equal((await worker.fetch(request('renamed-work'),{...env,STRIPE_CHECKOUT_MODE:'test',STRIPE_CHECKOUT_SECRET_KEY:'rk_test_fixture'})).status,503);
+ assert.equal((await startCheckout(request('removed-work'),env,catalog)).status,404);
+ assert.equal((await startCheckout(request('sold-work'),env,catalog)).status,409);
+ assert.equal((await startCheckout(request('unpriced-work'),env,catalog)).status,409);
+ assert.equal((await startCheckout(request('renamed-work',{method:'GET'}),env,catalog)).status,405);
+ assert.equal((await startCheckout(request('renamed-work',{headers:{origin:'https://example.org'}}),env,catalog)).status,403);
+ assert.equal((await startCheckout(request('renamed-work'),{},catalog)).status,503);
+ assert.equal((await startCheckout(request('renamed-work'),{...env,STRIPE_CHECKOUT_MODE:'test',STRIPE_CHECKOUT_SECRET_KEY:'rk_test_fixture'},catalog)).status,503);
  assert.equal(stripeRequests.length,0);
 
- const response=await worker.fetch(request('renamed-work',{body:'amount=1&title=Untrusted'}),env);
+ const response=await startCheckout(request('renamed-work',{body:'amount=1&title=Untrusted'}),env,catalog);
  assert.equal(response.status,303);
  assert.equal(response.headers.get('location'),'https://checkout.stripe.com/c/pay/cs_live_fixture#checkout');
  assert.equal(stripeRequests.length,1);

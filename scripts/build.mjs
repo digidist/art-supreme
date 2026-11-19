@@ -70,10 +70,8 @@ const crops=JSON.parse(fs.readFileSync(path.join(SOURCE,'artwork-crops.json'),'u
 const products=getProducts().map(p=>({...p,artwork:crops[p.slug]&&p.images.includes(crops[p.slug].source)?{url:'assets/artworks/'+p.slug+'.webp',width:crops[p.slug].width,height:crops[p.slug].height}:null}));
 for(const p of products)if(p.artwork&&!fs.existsSync(path.join(SOURCE,p.artwork.url.replace(/^assets\//,''))))throw new Error(`Missing artwork texture for ${p.slug}. Run node scripts/extract-artworks.mjs.`);
 const catalog=Object.fromEntries(products.map(p=>[p.slug,p]));
-if(hostedCheckout){
-  const checkoutCatalog=Object.fromEntries(products.map(({slug,title,price,currency,sold})=>[slug,{title,price,currency,sold}]));
-  fs.writeFileSync(path.join(ROOT,'scripts','.checkout-catalog.json'),JSON.stringify(checkoutCatalog)+'\n');
-}
+const checkoutCatalog=Object.fromEntries(products.map(({slug,title,price,currency,sold})=>[slug,{title,price,currency,sold}]));
+fs.writeFileSync(path.join(ROOT,'scripts','.checkout-catalog.json'),JSON.stringify(checkoutCatalog)+'\n');
 const assetHash=createHash('sha256').update(JSON.stringify(catalog));
 for(const name of ['site.css','site.js','world.js'])assetHash.update(fs.readFileSync(path.join(SOURCE,name)));
 const ASSET_VERSION=assetHash.digest('hex').slice(0,12);

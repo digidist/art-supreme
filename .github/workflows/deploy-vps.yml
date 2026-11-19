@@ -1,0 +1,79 @@
+name: Deploy Art Supreme to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bootstrap_product:
+        description: Create the one shared live Stripe product
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: art-supreme-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Test the checkout and build
+        run: node --test scripts/build.test.mjs
+
+      - name: Create the shared Stripe product once
+        id: stripe_product
+        if: github.event_name == 'workflow_dispatch' && inputs.bootstrap_product && vars.STRIPE_SHARED_PRODUCT_ID == ''
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: node scripts/stripe-create-shared-product.mjs
+
+      - name: Build the release and deploy over SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_SHARED_PRODUCT_ID: ${{ vars.STRIPE_SHARED_PRODUCT_ID || steps.stripe_product.outputs.product_id }}
+        run: |
+          set -euo pipefail
+          umask 077
+          work=$(mktemp -d)
+          trap 'rm -rf "$work"' EXIT
+          if [[ -z "$VPS_HOST" || -z "$VPS_SSH_KEY" || -z "$VPS_KNOWN_HOSTS" ]]; then
+            echo "The VPS deploy credentials are missing." >&2
+            exit 1
+          fi
+          printf '%s\n' "$VPS_SSH_KEY" > "$work/key"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$work/known_hosts"
+
+          build_flags=()
+          if [[ -n "$STRIPE_SHARED_PRODUCT_ID" ]]; then
+            if ! [[ "$STRIPE_SHARED_PRODUCT_ID" =~ ^prod_[A-Za-z0-9]+$ && "$STRIPE_SECRET_KEY" =~ ^(rk|sk)_live_[A-Za-z0-9_]+$ ]]; then
+              echo "Checkout needs a live Stripe key and a valid shared Product ID." >&2
+              exit 1
+            fi
+            build_flags+=(--checkout)
+          fi
+          (umask 022; node scripts/build.mjs "${build_flags[@]}")
+          mkdir -p "$work/release/scripts"
+          cp scripts/checkout.mjs scripts/checkout-server.mjs scripts/.checkout-catalog.json "$work/release/scripts/"
+          if [[ -z "$STRIPE_SHARED_PRODUCT_ID" ]]; then
+            : > "$work/release/runtime.env"
+          else
+            printf 'STRIPE_CHECKOUT_SECRET_KEY=%s\nSTRIPE_SHARED_PRODUCT_ID=%s\n' "$STRIPE_SECRET_KEY" "$STRIPE_SHARED_PRODUCT_ID" > "$work/release/runtime.env"
+          fi
+          tar --exclude='*/.DS_Store' --exclude='site/directions' --exclude='site/actually-good' \
+            --exclude='site/products/*/info.json' -czf "$work/release.tgz" -C "$work/release" runtime.env scripts -C "$GITHUB_WORKSPACE" site
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes \
+            -o UserKnownHostsFile="$work/known_hosts" -i "$work/key" "art-supreme@$VPS_HOST" \
+            art-supreme-deploy < "$work/release.tgz"

@@ -12,8 +12,9 @@ Thumbs.db
 # Node (if you add packages later)
 node_modules/
 
-# Generated Worker catalog and local Cloudflare credentials
+# Generated checkout catalog and local runtime credentials
 scripts/.checkout-catalog.json
+.env
 .wrangler/
 .dev.vars*
 
