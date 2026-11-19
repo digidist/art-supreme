@@ -471,6 +471,7 @@ select option{background:var(--paper)}
 .room-hotspot{width:15px;height:15px;background:#32332c8c;border-color:#fff5c8;box-shadow:0 0 0 4px #fffbd70b}
 .room-hotspot:before{width:4px;height:4px;background:#fff9da}
 .room-hotspot .artwork-callout{opacity:1;left:38px;right:auto;top:-49px;padding:7px 12px;border:1px solid #fffde1a1;border-radius:2px;color:#fffdf2;background:#20282066;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font:11px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.03em;max-width:210px;overflow:hidden;text-overflow:ellipsis;pointer-events:auto;box-shadow:0 3px 12px #0002;text-shadow:none}
+.room-hotspot .artwork-callout{box-sizing:border-box;white-space:normal;overflow-wrap:anywhere;transform:translateY(-50%)}
 .room-hotspot.label-left .artwork-callout{left:auto;right:38px}
 .artwork-only .room-leader{display:none}
 @media(max-width:760px){.dock-label{font-size:8px}.world-dock{border-radius:14px;box-shadow:0 14px 35px #0b120d42,inset 0 1px 0 #ffffffb3}.room-hotspot .artwork-callout{font-size:10px;max-width:155px;padding:6px 9px}}

@@ -21,3 +21,4 @@
 - Artwork and room selection uses the larger thumbnail-led glass dock and visual preview cards. Keep selected thumbnails synchronized with state. Use container-based compact layouts for product previews. On phones, keep the photograph, selector dock and expanded menus in separate page-flow rows; never overlay the artwork or room chooser on the photograph. Product view-mode buttons also sit outside the photo. Check closed, artwork-open and room-open layouts on homepage and product pages at 360, 390 and 430px.
 
 - The mobile homepage opens with a full-height room photograph and the headline over a dark lower gradient. Do not restore a solid olive introductory block above the image. Keep artwork visible above the headline and selector controls below the photo; mobile controls and menus use neutral charcoal.
+- Keep the artwork name callout beside the artwork, never over it. Anchor its leader to the nearest frame edge and reserve room for the name in compact previews.

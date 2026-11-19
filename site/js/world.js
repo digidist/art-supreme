@@ -169,19 +169,21 @@ function initializeWorld(root){
   if(!w||!h)return;
   const controls=$('.world-controls');controls.style.setProperty('--picker-space',Math.max(160,controls.offsetTop-18)+'px');
   const aspect=art.artwork.width/art.artwork.height,narrow=w/h<1.2;
-  const maxWidth=w*(view==='artwork'?.86:narrow?.7:room.width);
+  // Reserve a side column for the name in compact room previews.
+  const labelSpace=view==='room'&&narrow?Math.min(128,w*.3):0;
+  const maxWidth=Math.min(w*(view==='artwork'?.86:narrow?.7:room.width),w-labelSpace-32);
   const maxHeight=h*(view==='artwork'?.59:.4);
   const rim=view==='artwork'||frame==='none'?0:Math.max(3,Math.min(7,maxWidth*.011));
   const contentWidth=Math.min(maxWidth-2*rim,(maxHeight-2*rim)*aspect);
   const width=contentWidth+2*rim,height=contentWidth/aspect+2*rim;
-  const cx=view==='artwork'||narrow?w*.5:w*room.x,cy=h*(view==='artwork'?.39:room.y);
+  const cx=view==='artwork'||narrow?(w-labelSpace)*.5:w*room.x,cy=h*(view==='artwork'?.39:room.y);
   image.style.left=(cx-width/2)+'px';image.style.top=(cy-height/2)+'px';
   image.style.width=width+'px';image.style.height=height+'px';
   image.style.setProperty('--frame-size',rim+'px');
   image.style.setProperty('--frame-depth',Math.max(2,rim)+'px');
   alignRoomLight(image,stage,room.aspect,getComputedStyle($('.room-photo')).backgroundPosition);
   const r=image.getBoundingClientRect(),outer=root.getBoundingClientRect();
-  projectLabel({x:r.right-outer.left,y:r.top-outer.top+r.height*.34,visible:view==='room'});
+  projectLabel({left:r.left-outer.left,right:r.right-outer.left,y:r.top-outer.top+r.height*.34,visible:view==='room'});
  }
  // Sample the photograph at the exact wall position occupied by the artwork.
  // Only this presentation layer receives room light; the source image is untouched.
@@ -204,16 +206,19 @@ function initializeWorld(root){
  const observer=new ResizeObserver(()=>{layoutArtwork();lightClosingArtwork();});observer.observe(stage);
  if(closing)observer.observe(closing.parentElement);
  window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
- function projectLabel({x,y,visible=true}){
+ function projectLabel({left,right,y,visible=true}){
   const hotspot=$('[data-art-hotspot]'),leader=$('[data-room-leader]');if(!hotspot)return;
   hotspot.hidden=!visible;if(leader)leader.toggleAttribute('hidden',!visible);if(!visible)return;
+  const label=$('[data-art-label]'),rightSpace=root.clientWidth-right,leftSpace=left;
+  const onLeft=rightSpace<180&&leftSpace>rightSpace;
+  const x=onLeft?left:right,sign=onLeft?-1:1;
   hotspot.style.left=x+'px';hotspot.style.top=y+'px';
-  const label=hotspot.querySelector('[data-art-label]'),labelWidth=label?.getBoundingClientRect().width||150;
-  const left=x+labelWidth+50>root.clientWidth-16;
-  hotspot.classList.toggle('label-left',left);
-  const sign=left?-1:1,relativeY=y-stage.offsetTop;
-  const rise=Math.max(12,Math.min(stage.clientWidth<650?54:34,relativeY-26));if(label)label.style.top=(-rise-15)+'px';
-  const path=$('[data-leader-line]');if(path)path.setAttribute('d',`M ${x} ${y} L ${x+sign*24} ${y-rise} L ${x+sign*32} ${y-rise}`);
+  hotspot.classList.toggle('label-left',onLeft);
+  if(label){
+   label.style.width=Math.min(210,Math.max(0,(onLeft?leftSpace:rightSpace)-48))+'px';
+   label.style.top='50%';
+  }
+  const path=$('[data-leader-line]');if(path)path.setAttribute('d',`M ${x} ${y} L ${x+sign*32} ${y}`);
  }
  layoutArtwork();
  if(!isProduct&&catalog[stored.art]?.artwork&&stored.art!==art.slug){
