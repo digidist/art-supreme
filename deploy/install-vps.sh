@@ -21,6 +21,8 @@ systemctl enable art-supreme.service
 install -d -m 0755 /etc/art-supreme
 install -m 0644 "$here/nginx-https.conf" /etc/art-supreme/nginx-https.conf
 install -m 0755 "$here/enable-https.sh" /usr/local/sbin/art-supreme-enable-https
+install -d -m 0755 /etc/letsencrypt/renewal-hooks/deploy
+install -m 0755 "$here/reload-after-renewal.sh" /etc/letsencrypt/renewal-hooks/deploy/90-art-supreme-nginx
 if [[ ! -f "$nginx_site" ]]; then
   install -m 0644 "$here/nginx-http.conf" "$nginx_site"
   ln -sfn "$nginx_site" /etc/nginx/sites-enabled/art-supreme.com
