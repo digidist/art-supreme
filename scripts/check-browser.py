@@ -5,6 +5,7 @@ import asyncio,json,sys
 from pathlib import Path
 from playwright.async_api import async_playwright
 URL=(sys.argv[1] if len(sys.argv)>1 else 'http://127.0.0.1:8020').rstrip('/')
+HOSTED_CHECKOUT='--checkout' in sys.argv[2:]
 OUT=Path(__file__).resolve().parents[1]/'output/verification'
 OUT.mkdir(parents=True,exist_ok=True)
 async def main():
@@ -46,7 +47,6 @@ async def main():
   assert await page.locator('[data-world]').get_attribute('data-room')=='beautiful-mess'
   assert await page.locator('.product-info h1').inner_text()=='Summer Dream'
   assert await page.locator('.product-price').inner_text()=='€180'
-  assert (await page.locator('.btn-buy').get_attribute('href')).startswith('https://buy.stripe.com/')
   await page.locator('[data-view-mode="artwork"]').click();await settled();assert await page.locator('[data-world]').evaluate("e=>e.classList.contains('artwork-only')")
   await page.locator('[data-view-mode="room"]').click();await settled()
   await capture('product-desktop.png')
@@ -72,8 +72,15 @@ async def main():
    assert await page.locator('.product-info h1').inner_text()==work['title']
    assert work['priceLabel'] in await page.locator('.product-price').inner_text()
    link=await page.locator('.enquire-link').get_attribute('href')
-   if work['sold']:assert not link.startswith('https://buy.stripe.com')
-   elif work['stripePaymentLinkUrl']:assert link==work['stripePaymentLinkUrl']
+   if work['sold']:assert link=='../gallery.html'
+   elif HOSTED_CHECKOUT and work['price']>0:
+    form=page.locator('.checkout-form')
+    assert await form.get_attribute('method')=='post'
+    assert await form.get_attribute('action')==f'../api/checkout/{slug}'
+    assert await form.locator('button.btn-buy').is_visible()
+   elif work['stripePaymentLinkUrl']:
+    assert link==work['stripePaymentLinkUrl']
+    assert '/test_' not in link and '/cs_test_' not in link
    else:assert link.startswith('mailto:info@art-supreme.com?')
    assert await page.locator('[data-world]').count()==1
    await no_overflow();routes.append(slug)
@@ -106,7 +113,15 @@ async def main():
   nojs=await browser.new_page(viewport={'width':390,'height':844},java_script_enabled=False)
   await nojs.goto(URL+'/');assert await nojs.locator('.room-art-fallback').is_visible();assert not await nojs.locator('.world-dock').is_visible()
   await nojs.goto(URL+'/gallery.html');assert await nojs.locator('.art-card').count()==20
-  await nojs.goto(URL+'/product/artes-face.html');assert await nojs.locator('.btn-buy').is_visible()
+  await nojs.goto(URL+'/product/artes-face.html')
+  checkout=nojs.locator('.enquire-link')
+  assert await checkout.is_visible()
+  if HOSTED_CHECKOUT:
+   assert await nojs.locator('.checkout-form').get_attribute('action')=='../api/checkout/artes-face'
+  else:
+   expected=catalog['artes-face']['stripePaymentLinkUrl']
+   href=await checkout.get_attribute('href')
+   assert href==expected if expected else href.startswith('mailto:info@art-supreme.com?')
   fallback=await context.new_page();await fallback.add_init_script("const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.includes('webgl')?null:get.call(this,type,...args)}")
   await fallback.goto(URL+'/',wait_until='networkidle');await fallback.locator('[data-picker="room"]').click();await fallback.locator('[data-select-room="beautiful-mess"]').click();assert await fallback.locator('[data-world]').get_attribute('data-room')=='beautiful-mess';assert await fallback.locator('.room-art-fallback').is_visible()
   checks.extend(['no-JavaScript catalog and checkout','photographic controls without WebGL'])

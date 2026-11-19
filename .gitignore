@@ -12,6 +12,11 @@ Thumbs.db
 # Node (if you add packages later)
 node_modules/
 
+# Generated Worker catalog and local Cloudflare credentials
+scripts/.checkout-catalog.json
+.wrangler/
+.dev.vars*
+
 # Logs
 *.log
 npm-debug.log*

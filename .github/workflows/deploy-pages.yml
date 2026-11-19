@@ -1,10 +1,6 @@
 # Build the static site and deploy to GitHub Pages.
 # In the repo: Settings → Pages → Source = "GitHub Actions".
 #
-# Optional: add repo secret STRIPE_SECRET_KEY (sk_test_... or sk_live_...) so the pipeline
-# auto-creates Stripe Payment Links for any product that has a price but no stripePaymentLinkUrl,
-# then commits those URLs back into site/products/<slug>/info.json.
-
 name: Deploy to GitHub Pages
 
 on:
@@ -13,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # read + write (write needed to push updated info.json when Stripe links are created)
+  contents: read
   pages: write
   id-token: write
 
@@ -40,32 +36,6 @@ jobs:
         with:
           node-version: "20"
 
-      # Create Stripe Payment Links for products that have price but no stripePaymentLinkUrl.
-      # Add repo secret STRIPE_SECRET_KEY to enable; if not set, script skips and step succeeds.
-      - name: Create Stripe links for new products
-        env:
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_SUCCESS_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/success.html
-          STRIPE_CURRENCY: ${{ secrets.STRIPE_CURRENCY }}
-          STRIPE_DEFAULT_DESCRIPTION: ${{ secrets.STRIPE_DEFAULT_DESCRIPTION }}
-        run: node scripts/stripe-create-links.mjs
-
-      # If push fails (e.g. branch protection), this step fails and the whole pipeline stops.
-      - name: Commit updated Stripe links
-        run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add site/products/*/info.json
-          if git diff --staged --quiet; then
-            echo "No info.json changes (all products already have Stripe links); nothing to commit."
-          else
-            git commit -m "chore: add Stripe payment links for new products"
-            git push origin HEAD:${{ github.ref_name }}
-            echo "Pushed commit to ${{ github.ref_name }}."
-          fi
-
-      # Build runs in the same job, so it sees the updated info.json (including any new Stripe URLs).
       - name: Build site
         run: node scripts/build.mjs
 

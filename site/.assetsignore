@@ -1,0 +1,5 @@
+.DS_Store
+.assetsignore
+actually-good/
+directions/
+products/*/info.json

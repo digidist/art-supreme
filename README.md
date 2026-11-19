@@ -75,13 +75,21 @@ Prices, images, existing descriptions, and payment links come from the product f
 
 ## Purchase and enquiry behavior
 
-- An unsold work with a valid `stripePaymentLinkUrl` offers a Stripe purchase link.
-- An unsold work without a payment link offers an email enquiry to `info@art-supreme.com`.
+- In the hosted checkout build, an unsold work with a price can open Stripe Checkout. An unsold work without a price offers an email enquiry to `info@art-supreme.com`.
+- The static build can still use a saved live `stripePaymentLinkUrl`. Its other unsold works offer an enquiry.
 - A sold work offers a link back to the collection and never displays a purchase link.
 - Enquiry links open the visitor’s email application. No email is sent automatically, and the site does not process payments itself.
 - The checkout return page gives follow-up information; it does not independently verify payment.
 
-The existing `scripts/stripe-create-links.mjs` and GitHub Actions workflow remain available. With `STRIPE_SECRET_KEY` configured in GitHub, the existing workflow creates missing Stripe links before building and deploying. Running `node scripts/build.mjs` locally does not call Stripe.
+### Enable live checkout
+
+1. In the Stripe Dashboard, create one product called **Art Supreme Canvas Artwork** and copy its `prod_…` ID. The Worker creates each checkout with an inline price and uses the existing product ID. Configure the tax category on the shared product if applicable.
+2. Connect the repository’s `main` branch to a Cloudflare Worker named `art-supreme`. Set its build command to `node scripts/build.mjs --checkout` and its deploy command to `npx wrangler@4 deploy`. Publish the Worker and static assets together so the storefront and checkout use the same release.
+3. In the Worker’s runtime settings, set `STRIPE_SHARED_PRODUCT_ID` and add `STRIPE_CHECKOUT_SECRET_KEY` as an encrypted secret. Start with a restricted Stripe key granting **Checkout Sessions** write access. Verify Checkout in a preview environment before pointing `art-supreme.com` to the Worker. To use Stripe sandbox in a separate preview, set `STRIPE_CHECKOUT_MODE=test` and supply a sandbox product ID and key there.
+
+Edit and publish the gallery to add works, rename them, change prices, or mark them sold. Each new checkout reads the current published snapshot. Stripe stores the normal Checkout Session and payment records. The session carries the artwork slug as its reference and displays the title in checkout text. The Worker sends no Stripe metadata fields and makes no changes to the shared Product.
+
+Hosted sessions expire after roughly 31 minutes. An open session keeps its original price, and completed payments do not update the gallery’s sold status automatically. Confirm Croatian VAT and shipping terms before accepting live orders. The return page does not verify payment.
 
 ## Verify
 
@@ -98,10 +106,12 @@ For the complete browser check, start the local server, install Playwright in a 
 python scripts/check-browser.py http://127.0.0.1:8020
 ```
 
+For hosted checkout, run `node scripts/build.mjs --checkout` and `npx wrangler@4 dev --local`. Then run `python scripts/check-browser.py http://127.0.0.1:8787 --checkout`.
+
 The checks exercise photographic room controls, the artwork-attached label, room-preserving artwork choices, product navigation, previews, gallery filters, saved works, all canonical product states, widths 360/390/768/1440, and no-JavaScript rendering and operation without WebGL. Results and full-page captures go to `output/verification/`.
 
 ## Deployment
 
-The existing GitHub Actions workflow builds and deploys `site/` to GitHub Pages when changes are pushed to `main`. The configured public domain is `https://art-supreme.com/`.
+The existing GitHub Actions workflow publishes the static build to GitHub Pages. The checkout-enabled build uses Cloudflare Workers and the same `site/` directory. After verifying the Worker and switching the public domain `https://art-supreme.com/` to it, disable the old Pages deployment. Future pushes to the connected branch deploy the site and checkout together.
 
 The local `site/actually-good/` and `site/directions/` folders are earlier design studies, separate from the public build source. They are not required for the storefront. Their paths are excluded from crawling in the generated robots file.

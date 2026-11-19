@@ -4,11 +4,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { stripeLinkMode } from './stripe-links.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const SITE = path.join(ROOT, 'site');
 const SOURCE = path.join(ROOT, 'scripts', 'assets');
 const PRODUCT_DIR = path.join(SITE, 'products');
+const hostedCheckout = process.argv.includes('--checkout');
 const ORIGIN = 'https://art-supreme.com';
 const HEADLINE = 'What if AI art was actually good?';
 const CONTACT = 'info@art-supreme.com';
@@ -31,7 +33,8 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'
 const safeText = value => String(value ?? '').replace(/—/g, '–');
 const jsonScript = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 function price(product) {
-  return product.price > 0 ? new Intl.NumberFormat('en', { style:'currency', currency:product.currency, maximumFractionDigits:Number.isInteger(product.price)?0:2 }).format(product.price) : 'Price on request';
+  const wholeAmount=Number.isInteger(product.price)?{maximumFractionDigits:0}:{};
+  return product.price > 0 ? new Intl.NumberFormat('en', { style:'currency', currency:product.currency, ...wholeAmount }).format(product.price) : 'Price on request';
 }
 function getProducts() {
   if (!fs.existsSync(PRODUCT_DIR)) throw new Error('Missing site/products directory.');
@@ -49,12 +52,8 @@ function getProducts() {
     const dimensions=excerpt.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)\s*cm/i);
     const sold=meta.sold===true||meta.status==='sold'||/\[sold\]/i.test(rawTitle);
     const payment=String(meta.stripePaymentLinkUrl||'').trim();
-    if(payment) {
-      let valid=false;
-      try {const url=new URL(payment);valid=url.protocol==='https:'&&['buy.stripe.com','checkout.stripe.com'].includes(url.hostname);}
-      catch {}
-      if(!valid)throw new Error(`Invalid Stripe Payment Link for ${d.name}`);
-    }
+    const paymentMode=stripeLinkMode(payment);
+    if(payment&&!paymentMode)throw new Error(`Invalid Stripe Payment Link for ${d.name}`);
     const currency=String(meta.currency||'EUR').toUpperCase();
     try {new Intl.NumberFormat('en',{style:'currency',currency}).format(0);}catch {throw new Error(`Invalid currency for ${d.name}`);}
     return {slug:d.name,title:rawTitle.replace(/\s*\[sold\]/ig,'').trim(),price:rawPrice,currency,priceLabel:'',sold,
@@ -62,7 +61,7 @@ function getProducts() {
       size:safeText(meta.dimensions||meta.size||(dimensions?`${dimensions[1]} × ${dimensions[2]} cm`:'Dimensions on request')),
       material:safeText(meta.material||(/frame (?:is )?included/i.test(excerpt)?'Frame included':/canvas/i.test(excerpt)?'Canvas':'Details on request')),
       description:safeText(meta.description||observations[d.name]||'A generative work from the Art Supreme collection.'),
-      excerpt,content:safeText(meta.content||''),stripePaymentLinkUrl:payment,
+      excerpt,content:safeText(meta.content||''),stripePaymentLinkUrl:!hostedCheckout&&paymentMode==='live'?payment:'',
       category:landscapes.has(d.name)?'landscape':figures.has(d.name)?'figure':'abstract',
       roomImages:!['splash','aztlan','bullion','fifth-element','stir'].includes(d.name)};
   }).sort((a,b)=>a.slug.localeCompare(b.slug)).map(p=>({...p,priceLabel:price(p)}));
@@ -71,6 +70,10 @@ const crops=JSON.parse(fs.readFileSync(path.join(SOURCE,'artwork-crops.json'),'u
 const products=getProducts().map(p=>({...p,artwork:crops[p.slug]&&p.images.includes(crops[p.slug].source)?{url:'assets/artworks/'+p.slug+'.webp',width:crops[p.slug].width,height:crops[p.slug].height}:null}));
 for(const p of products)if(p.artwork&&!fs.existsSync(path.join(SOURCE,p.artwork.url.replace(/^assets\//,''))))throw new Error(`Missing artwork texture for ${p.slug}. Run node scripts/extract-artworks.mjs.`);
 const catalog=Object.fromEntries(products.map(p=>[p.slug,p]));
+if(hostedCheckout){
+  const checkoutCatalog=Object.fromEntries(products.map(({slug,title,price,currency,sold})=>[slug,{title,price,currency,sold}]));
+  fs.writeFileSync(path.join(ROOT,'scripts','.checkout-catalog.json'),JSON.stringify(checkoutCatalog)+'\n');
+}
 const assetHash=createHash('sha256').update(JSON.stringify(catalog));
 for(const name of ['site.css','site.js','world.js'])assetHash.update(fs.readFileSync(path.join(SOURCE,name)));
 const ASSET_VERSION=assetHash.digest('hex').slice(0,12);
@@ -109,11 +112,23 @@ for(const p of products){
   const mailSubject=encodeURIComponent('Art Supreme enquiry: '+p.title);
   const mailBody=encodeURIComponent(`Hello,\n\nI’m interested in ${p.title}, listed at ${p.priceLabel}. Could you confirm availability, dimensions, materials, framing, and delivery options?\n\nThank you.`);
   const enquire=`mailto:${CONTACT}?subject=${mailSubject}&body=${mailBody}`;
-  const primary=p.sold?'<a class="enquire-link" href="../gallery.html">Sold – explore other works <span>↗</span></a>':p.stripePaymentLinkUrl?`<a class="enquire-link btn-buy" href="${escapeHtml(p.stripePaymentLinkUrl)}" target="_blank" rel="noopener">Buy – ${escapeHtml(p.priceLabel)} <span>↗</span></a>`:`<a class="enquire-link" href="${escapeHtml(enquire)}">Enquire about this work <span>↗</span></a>`;
+  const canStartCheckout=hostedCheckout&&p.price>0;
+  const checkoutAvailable=canStartCheckout||(!hostedCheckout&&Boolean(p.stripePaymentLinkUrl));
+  const checkoutLabel=`Buy – ${escapeHtml(p.priceLabel)} <span>↗</span>`;
+  const primary=p.sold?'<a class="enquire-link" href="../gallery.html">Sold – explore other works <span>↗</span></a>':
+    canStartCheckout?`<form class="checkout-form" method="post" action="../api/checkout/${encodeURIComponent(p.slug)}"><button class="enquire-link btn-buy" type="submit">${checkoutLabel}</button></form>`:
+    checkoutAvailable?`<a class="enquire-link btn-buy" href="${escapeHtml(p.stripePaymentLinkUrl)}" target="_blank" rel="noopener">${checkoutLabel}</a>`:
+    `<a class="enquire-link" href="${escapeHtml(enquire)}">Enquire about this work <span>↗</span></a>`;
   const img=p.images.length?`<img id="product-main-image" src="${imageUrl(p,0,'../')}" alt="${escapeHtml(p.title)} – catalog image 1" decoding="async">`:'<span class="no-image">Image on request</span>';
   const related=products.filter(x=>x.slug!==p.slug&&x.category===p.category).concat(products.filter(x=>x.slug!==p.slug&&x.category!==p.category)).slice(0,3);
-  const body=`<section class="product-page"><a class="product-back" href="../gallery.html" id="back-to-gallery">← Collection</a><article class="product-layout"><div class="product-media">${world(p,{base:"../",product:true})}<div class="catalog-views${p.artwork?" has-world":""}"><a class="product-image-button" id="open-image" href="${p.images.length?imageUrl(p,0,'../'):'../gallery.html'}" aria-label="${p.images.length?'Enlarge':'Explore the collection'} ${escapeHtml(p.title)}">${img}</a><div class="zoom-label"><span>${p.roomImages?'Room visualization':'Catalog image'}</span><span class="zoom-help" hidden>Click image to enlarge ↗</span></div><div class="product-thumbs" aria-label="Artwork gallery" hidden>${p.images.map((_,i)=>`<button type="button" data-image-index="${i}" aria-label="Show image ${i+1}" aria-pressed="${i===0}"><img src="${imageUrl(p,i,'../')}" alt="" loading="lazy"></button>`).join('')}</div><noscript>${p.images.slice(1).map((_,i)=>`<a href="${imageUrl(p,i+1,'../')}">View image ${i+2} ↗</a>`).join(' · ')}</noscript></div></div><div class="product-info"><p class="overline">ART SUPREME / ${p.sold?'SOLD':'GENERATIVE ARTWORK'}</p><h1>${escapeHtml(p.title)}</h1><p class="product-price">${escapeHtml(p.priceLabel)}${p.sold?' · Sold':''}</p><p class="product-summary">${escapeHtml(p.description)}</p><dl class="product-specs"><dt>Medium</dt><dd>Generative AI</dd><dt>Dimensions</dt><dd>${escapeHtml(p.size)}</dd><dt>Object details</dt><dd>${escapeHtml(p.material)}</dd><dt>Availability</dt><dd>${p.sold?'Sold':p.stripePaymentLinkUrl?'View checkout options':'Enquire to confirm'}</dd></dl><div class="product-actions">${primary}<button class="product-save" data-save="${escapeHtml(p.slug)}" aria-pressed="false" hidden>Save this work <span>☆</span></button></div><p class="enquiry-note">${p.sold?'This work is marked sold in the catalog.':p.stripePaymentLinkUrl?'Checkout opens securely with Stripe.':'An enquiry opens your email app. No payment is taken here.'}</p><div class="product-details"><details><summary>About this work</summary><p class="product-description">${escapeHtml(p.content||p.description)}</p>${p.excerpt?`<p>${escapeHtml(p.excerpt)}</p>`:''}</details><details><summary>Size, framing & delivery</summary><p>${escapeHtml(p.size)}. ${escapeHtml(p.material)}. <a href="../shipping.html">Read about shipping and returns</a>, or <a href="${escapeHtml(enquire)}">ask about the work</a> before ordering.</p></details><details><summary>About the room images</summary><p>Room scenes are visualizations showing how an artwork could sit in a space. Use the confirmed dimensions to judge the size of the physical work.</p></details></div></div></article></section><section class="related-section"><div class="section-heading"><span class="overline">KEEP LOOKING</span><h2>Other possibilities.</h2><a href="../gallery.html">All works ↗</a></div><div class="related-grid">${related.map(x=>card(x,'../')).join('')}</div></section>`;
+  const body=`<section class="product-page"><a class="product-back" href="../gallery.html" id="back-to-gallery">← Collection</a><article class="product-layout"><div class="product-media">${world(p,{base:"../",product:true})}<div class="catalog-views${p.artwork?" has-world":""}"><a class="product-image-button" id="open-image" href="${p.images.length?imageUrl(p,0,'../'):'../gallery.html'}" aria-label="${p.images.length?'Enlarge':'Explore the collection'} ${escapeHtml(p.title)}">${img}</a><div class="zoom-label"><span>${p.roomImages?'Room visualization':'Catalog image'}</span><span class="zoom-help" hidden>Click image to enlarge ↗</span></div><div class="product-thumbs" aria-label="Artwork gallery" hidden>${p.images.map((_,i)=>`<button type="button" data-image-index="${i}" aria-label="Show image ${i+1}" aria-pressed="${i===0}"><img src="${imageUrl(p,i,'../')}" alt="" loading="lazy"></button>`).join('')}</div><noscript>${p.images.slice(1).map((_,i)=>`<a href="${imageUrl(p,i+1,'../')}">View image ${i+2} ↗</a>`).join(' · ')}</noscript></div></div><div class="product-info"><p class="overline">ART SUPREME / ${p.sold?'SOLD':'GENERATIVE ARTWORK'}</p><h1>${escapeHtml(p.title)}</h1><p class="product-price">${escapeHtml(p.priceLabel)}${p.sold?' · Sold':''}</p><p class="product-summary">${escapeHtml(p.description)}</p><dl class="product-specs"><dt>Medium</dt><dd>Generative AI</dd><dt>Dimensions</dt><dd>${escapeHtml(p.size)}</dd><dt>Object details</dt><dd>${escapeHtml(p.material)}</dd><dt>Availability</dt><dd>${p.sold?'Sold':checkoutAvailable?'View checkout options':'Enquire to confirm'}</dd></dl><div class="product-actions">${primary}<button class="product-save" data-save="${escapeHtml(p.slug)}" aria-pressed="false" hidden>Save this work <span>☆</span></button></div><p class="enquiry-note">${p.sold?'This work is marked sold in the catalog.':checkoutAvailable?'Checkout opens securely with Stripe.':'An enquiry opens your email app. No payment is taken here.'}</p><div class="product-details"><details><summary>About this work</summary><p class="product-description">${escapeHtml(p.content||p.description)}</p>${p.excerpt?`<p>${escapeHtml(p.excerpt)}</p>`:''}</details><details><summary>Size, framing & delivery</summary><p>${escapeHtml(p.size)}. ${escapeHtml(p.material)}. <a href="../shipping.html">Read about shipping and returns</a>, or <a href="${escapeHtml(enquire)}">ask about the work</a> before ordering.</p></details><details><summary>About the room images</summary><p>Room scenes are visualizations showing how an artwork could sit in a space. Use the confirmed dimensions to judge the size of the physical work.</p></details></div></div></article></section><section class="related-section"><div class="section-heading"><span class="overline">KEEP LOOKING</span><h2>Other possibilities.</h2><a href="../gallery.html">All works ↗</a></div><div class="related-grid">${related.map(x=>card(x,'../')).join('')}</div></section>`;
   write(`product/${p.slug}.html`,layout({title:p.title,body,page:'product',base:'../',slug:p.slug,canonical:`product/${encodeURIComponent(p.slug)}.html`,description:`${p.title} – ${p.priceLabel}. ${p.description}`,product:p}));
+}
+// Remove generated routes for works deleted from the catalog.
+const productPages=path.join(SITE,'product');
+const currentPages=new Set(products.map(p=>p.slug+'.html'));
+for(const file of fs.readdirSync(productPages,{withFileTypes:true})){
+  if(file.isFile()&&file.name.endsWith('.html')&&!currentPages.has(file.name))fs.unlinkSync(path.join(productPages,file.name));
 }
 const infoHeading=(label,title)=>`<section class="page-heading"><p class="overline">${label}</p><h1>${title}</h1></section>`;
 write('contact.html',layout({title:'Contact',active:'contact',canonical:'contact.html',body:infoHeading('ART SUPREME / CONTACT','Let’s talk<br>about the work.')+`<section class="info-layout"><div><h2>Get in touch.</h2><p>Questions about an artwork, its size, framing, or delivery? Write to us.</p><p><a class="contact-address" href="mailto:${CONTACT}">${CONTACT}</a></p><a class="action" href="gallery.html">Explore the collection <span>↗</span></a></div><aside class="info-aside"><p class="overline">YOUR ENQUIRY</p><h2>Start with<br>the picture.</h2><p>Include the work’s title and your delivery country. You can also open a product page and use its enquiry button to start an email with the work already named.</p></aside></section>`}));
